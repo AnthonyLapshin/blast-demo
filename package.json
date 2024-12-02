@@ -1,0 +1,19 @@
+{
+  "name": "blast-demo",
+  "uuid": "7e23e5f3-618c-4dd3-8e00-7a8f3be1ea52",
+  "creator": {
+    "version": "3.8.3"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "reflect-metadata": "^0.2.2"
+  }
+}
