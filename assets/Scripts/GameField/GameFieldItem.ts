@@ -1,4 +1,4 @@
-import { _decorator, Component, Vec3, tween, Node, EventTouch, UITransform } from "cc";
+import { _decorator, Component, Vec3, tween, Node, EventTouch, UITransform, CCString } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameFieldItem')
@@ -7,7 +7,7 @@ export class GameFieldItem extends Component {
     public targetX: number = 0;
     public targetY: number = 0;
     
-    @property({type: String})
+    @property({type: CCString})
     public ItemType: string = "";
 
     private _isInteractable: boolean = true;
