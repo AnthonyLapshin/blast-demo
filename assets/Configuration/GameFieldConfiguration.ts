@@ -1,11 +1,11 @@
-import { Injectable } from "../Scripts/Libs/DI/Decorators";
+export class GameFieldConfiguration {
+    public static readonly width: number = 10;
+    public static readonly height: number = 10;
+    public static readonly cellWidth: number = 171;
+    public static readonly cellHeight: number = 192;
+}
 
-@Injectable()
-export default class LevelConfiguration{
-    public static GameFieldConfiguration: any = {
-        width: 6,
-        height: 6,
-        cellWidth:  171,
-        cellHeight:  192
-    }
+export class GameConfiguration {
+    public static readonly reshuffles: number = 3;
+    public static readonly minClusterSize: number = 4;
 }
