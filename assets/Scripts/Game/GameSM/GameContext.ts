@@ -8,11 +8,11 @@ import { inject } from "../../Libs/Injects/inject";
 import { IGameConfigurationService } from "../../Services/IGameConfigurationService";
 import { ILevelConfigurationService } from "../../Services/ILevelConfiguration";
 import { SelectedItemData } from "../Base/SelectedItemData";
+import { IGameStatsObserver } from "../Base/IGameStatsObserver";
 
 @singleton()
 
 export class GameContext implements IGameContext {
-    public _points: number = 0;
 
     private _itemPrefabs: Prefab[] = null;
     private _itemsPool: GameFieldItem[] = [];
@@ -36,6 +36,24 @@ export class GameContext implements IGameContext {
     private _gameScore: number = 0;
     private _gameMoves: number = 0;
 
+    // observers
+    private _observers: Set<IGameStatsObserver> = new Set();
+
+    public addObserver(observer: IGameStatsObserver): void {
+        this._observers.add(observer);
+    }
+
+    public removeObserver(observer: IGameStatsObserver): void {
+        this._observers.delete(observer);
+    }
+
+    private notifyScoreChanged(newScore: number): void {
+        this._observers.forEach(observer => observer.onScoreChanged(newScore));
+    }
+
+    private notifyMovesChanged(newMoves: number): void {
+        this._observers.forEach(observer => observer.onMovesChanged(newMoves));
+    }
     // ========================= Getters & Setters =========================
 
     public get gameMoves(): number {
@@ -43,7 +61,10 @@ export class GameContext implements IGameContext {
     }
 
     public set gameMoves(value: number) {
-        this._gameMoves = value;
+        if (this._gameMoves !== value) {
+            this._gameMoves = value;
+            this.notifyMovesChanged(value);
+        }
     }
 
     public get gameScore(): number {
@@ -51,7 +72,10 @@ export class GameContext implements IGameContext {
     }
 
     public set gameScore(value: number) {
-        this._gameScore = value;
+        if (this._gameScore !== value) {
+            this._gameScore = value;
+            this.notifyScoreChanged(value);
+        }
     }
 
     public get onClickedItemCb(): Function {
@@ -118,14 +142,6 @@ export class GameContext implements IGameContext {
     
     public get gameConf(): IGameConfigurationService {
         return this._gameConf;
-    }
-
-    public get points(): number {
-        return this._points;
-    }
-
-    public set points(value: number) {
-        this._points = value;
     }
 
     public get itemPrefabs(): Prefab[] {

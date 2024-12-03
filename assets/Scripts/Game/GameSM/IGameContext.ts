@@ -6,8 +6,8 @@ import { SelectedItemData } from "../Base/SelectedItemData";
 
 
 export interface IGameContext {
-    get points(): number
-    set points(value: number)
+    get gameScore(): number
+    set gameScore(value: number)
     
     get items(): GameFieldItem[][];
     set items(value: GameFieldItem[][]);
