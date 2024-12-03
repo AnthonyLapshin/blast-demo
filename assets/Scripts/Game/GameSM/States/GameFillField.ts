@@ -1,9 +1,8 @@
-import { instantiate, Node } from "cc";
+import { instantiate } from "cc";
 import { GameFieldItem } from "../../../GameField/GameFieldItem";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
 import { ArrayUtils } from "../../../Libs/utils/ArrayUtils";
 import { GameContext } from "../GameContext";
-import { GameStateMachine } from "../GameSM";
 import { inject } from "../../../Libs/Injects/inject";
 import { IClusterSeekerService } from "../../../Services/IClusterSeekerService";
 import { ClusterSeekerService } from "../../../Services/ClusterSeekerService";
@@ -65,7 +64,7 @@ export class GameFillField extends BaseState<GameContext>{
         const item = instantiate((ArrayUtils.getRandomItem(context.itemPrefabs)));
         var itemComponent = item.getComponent(GameFieldItem.COMPONENT_NAME) as GameFieldItem;
         if(subscribeClickEvents){
-            item.on(GameStateMachine.CLICKED_EVENT, (clickedItem: GameFieldItem) => {
+            item.on(GameFieldItem.CLICKED_EVENT, (clickedItem: GameFieldItem) => {
                 context.onClickedItemCb(clickedItem);
             });
         }

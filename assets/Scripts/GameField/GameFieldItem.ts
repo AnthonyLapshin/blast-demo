@@ -5,7 +5,7 @@ const { ccclass, property } = _decorator;
 @ccclass('GameFieldItem')
 export class GameFieldItem extends Component {
     public static readonly COMPONENT_NAME: string = 'GameFieldItem';
-
+    public static readonly CLICKED_EVENT: string = 'item-clicked';
     
     @property({type: CCString})
     public ItemType: string = "";
@@ -24,7 +24,7 @@ export class GameFieldItem extends Component {
     
     onLoad() {
         // Add click event listener
-        //this.node.on(Node.EventType.TOUCH_END, this.onClick, this);
+        this.node.on(Node.EventType.TOUCH_END, this.onClick, this);
     }
 
     onClick(event: EventTouch) {
@@ -41,7 +41,7 @@ export class GameFieldItem extends Component {
             // Check if click is within sprite bounds
             if (Math.abs(nodePos.x) <= size.width/2 && Math.abs(nodePos.y) <= size.height/2) {
                 console.log('Clicked item type:', this.ItemType);
-                this.node.emit( SelectedItemData.SELECTED_EVENT, this); 
+                this.node.emit( GameFieldItem.CLICKED_EVENT, this); 
             }
         }
     }
