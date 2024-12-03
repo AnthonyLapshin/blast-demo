@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Prefab, UITransform } from "cc";
+import { _decorator, Component, instantiate, Prefab, UITransform, utils } from "cc";
 import { GameFieldConfiguration, GameConfiguration } from '../../Configuration/GameFieldConfiguration';
 
 import { GameFieldItem } from "./GameFieldItem";
@@ -8,6 +8,7 @@ import { inject } from "../Libs/Injects/inject";
 import { LevelConfigurationService } from "../Services/LevelConfiguration";
 import { IGameConfigurationService } from "../Services/IGameConfigurationService";
 import { ILevelConfigurationService } from "../Services/ILevelConfiguration";
+import { ArrayUtils } from "../Libs/utils/ArrayUtils";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameField')
@@ -15,7 +16,7 @@ export class GameField extends Component {
 
     private static CLICKED_EVENT: string = 'item-clicked';
     private static FIELD_ITEM_COMPONENT: string = 'GameFieldItem';
-    
+
     private readonly _lvlConf: ILevelConfigurationService =  inject(LevelConfigurationService);
     private readonly _gameConf: IGameConfigurationService =  inject(GameConfigurationService);
     private readonly _clusterSeeker: IClusterSeekerService =  inject(ClusterSeekerService);
@@ -26,10 +27,6 @@ export class GameField extends Component {
     private _itemPool: GameFieldItem[] = [];
 
     private _items: GameFieldItem[][] = [];
-
-    private getRandomItem<T>(array: T[]): T {
-        return array[Math.floor(Math.random() * array.length)];
-    }
 
     protected start(): void {
         // Set initial content size
@@ -56,17 +53,17 @@ export class GameField extends Component {
         for (let i = 0; i < this._lvlConf.width; i++) {
             this._items[i] = [];
             for (let j = 0; j < this._lvlConf.height; j++) {
-                            
+                
                 // Let's add the item to the pool
-                const poolItem = instantiate((this.getRandomItem(this.itemPrefabs)));
-                var itemForPool = poolItem.getComponent(GameField.FIELD_ITEM_COMPONENT);
+                const poolItem = instantiate((ArrayUtils.getRandomItem(this.itemPrefabs)));
+                var itemForPool = poolItem.getComponent(GameField.FIELD_ITEM_COMPONENT) as GameFieldItem;
                 this._itemPool.push(itemForPool);
                 this.subscribeClickEvents(itemForPool);
 
-                const item = instantiate((this.getRandomItem(this.itemPrefabs)));
+                const item = instantiate((ArrayUtils.getRandomItem(this.itemPrefabs)));
                 item.setPosition(i * this._lvlConf.cellWidth, j * this._lvlConf.cellHeight);
                 this.node.addChild(item);
-                const itemComponent = item.getComponent(GameField.FIELD_ITEM_COMPONENT);
+                const itemComponent = item.getComponent(GameField.FIELD_ITEM_COMPONENT) as GameFieldItem;
                 this._items[i][j] = itemComponent;
 
                 // Listen for click events from items
@@ -104,7 +101,7 @@ export class GameField extends Component {
     private removeCluster(cluster: GameFieldItem[]): void {
         // Here we need to implement cluster removal logic
         for (const item of cluster) {
-            const index = this._items.findIndex(row => row.includes(item));
+            const index = this._items.findIndex(row => row.indexOf(item) !== -1);
             if (index !== -1) {
                 const columnIndex = this._items[index].indexOf(item);
                 if (columnIndex !== -1) {
@@ -123,7 +120,8 @@ export class GameField extends Component {
         // Refill empty spaces
         this.refillGrid();
 
-        var remainClusters = this.findAllClusters(this._gameConf.minClusterSize, 'ItemType').length;
+        var remainClusters = this._clusterSeeker.FindAllClusters(this._items, this._gameConf.minClusterSize, 'ItemType').length;
+        
         if (remainClusters > 0) {
             console.log('Remaining clusters:', remainClusters); 
             return;
@@ -131,27 +129,24 @@ export class GameField extends Component {
         
         for (let i = 0; i < this._gameConf.reshuffles; i++) {
             this.shuffleItems();
-            remainClusters = this.findAllClusters(this._gameConf.minClusterSize, 'ItemType').length;
+            remainClusters = this._clusterSeeker.FindAllClusters(this._items, this._gameConf.minClusterSize, 'ItemType').length;
             if (remainClusters > 0) {
                 break;
             }
         }
+        this.resetItems();
     }
 
     private refillGrid(): void {
         for (let i = 0; i < this._items.length; i++) {
             for (let j = 0; j < this._items[i].length; j++) {
                 if (!this._items[i][j]) {
-                    const item = this.getRandomItem(this._itemPool);
-                    const poolIndex = this._itemPool.indexOf(item);
-                    if (poolIndex !== -1) {
-                        this._itemPool.splice(poolIndex, 1);
-                    }
+                    const item = ArrayUtils.getRandomItem(this._itemPool) as GameFieldItem;
+                    ArrayUtils.removeItem(this._itemPool, item);
                     this._items[i][j] = item;
                     // add item on top of the grid (it will be behind the mask)
                     item.node.setPosition(i * this._lvlConf.cellWidth, (this._lvlConf.height + 1) * this._lvlConf.cellHeight);
                     
-                    //item.node.setPosition(this.gfConf.w this.gfConf.cellWidth, j * this.gfConf.cellHeight);
                     this.node.addChild(item.node);
 
                     item.moveToPosition(i * this._lvlConf.cellWidth, j * this._lvlConf.cellHeight, 0.2, (this._lvlConf.height - j) * 0.15);
@@ -189,13 +184,8 @@ export class GameField extends Component {
         return this._clusterSeeker.CollectCluster(this._items, minClusterSize, startingX, startingY, propertyName);
     }
 
-    public findAllClusters(minClusterSize: number, propertyName: string = 'ItemType'): GameFieldItem[][] {
-        return this._clusterSeeker.FindAllClusters(this._items, minClusterSize, propertyName);
-    }
-
     public shuffleItems(): void{
         this._items.shuffle2D();
-        this.resetItems();
     }
 
     // Reset item positions
