@@ -1,11 +1,6 @@
 import { singleton } from "../Libs/Injects/decorators/singleton";
 import { GameFieldItem } from "../GameField/GameFieldItem";
-
-
-export interface IClusterSeekerService {
-    CollectCluster(items: GameFieldItem[][], minClusterSize: number, startX: number, startY: number, propertyName: string): GameFieldItem[];
-    FindAllClusters(items: GameFieldItem[][], minClusterSize: number, propertyName: string): GameFieldItem[][];
-}
+import { IClusterSeekerService } from "./IClusterSeekerService";
 
 @singleton()
 export class ClusterSeekerService implements IClusterSeekerService {

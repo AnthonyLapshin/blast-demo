@@ -1,4 +1,4 @@
-export interface ILevelConfiguration {
+export interface ILevelConfigurationService {
     get width(): number ;
     get height(): number;
     get cellWidth(): number;
