@@ -19,46 +19,46 @@ export class FiniteStateMachine<TContext> {
         this.transitions.push(transition);
     }
 
-    public setInitialState(stateName: string): void {
+    public async setInitialState(stateName: string): Promise<void> {
         const state = this.states.get(stateName);
         if (!state) {
             throw new Error(`State ${stateName} not found`);
         }
         this.currentState = state;
-        this.currentState.onEnter?.(this.context);
+        await this.currentState.onEnter?.(this.context);
     }
 
-    public update(): void {
+    public async update(): Promise<void> {
         if (!this.currentState) {
             return;
         }
 
         // Update current state
-        this.currentState.update?.(this.context);
+        await this.currentState.update?.(this.context);
 
         // Check transitions
         const possibleTransitions = this.transitions.filter(t => t.from === this.currentState!.name);
         
         for (const transition of possibleTransitions) {
             if (!transition.guardCondition || transition.guardCondition(this.context)) {
-                this.transitionTo(transition.to);
+                await this.transitionTo(transition.to);
                 break;
             }
         }
     }
 
-    private transitionTo(stateName: string): void {
+    private async transitionTo(stateName: string): Promise<void> {
         const newState = this.states.get(stateName);
         if (!newState) {
             throw new Error(`State ${stateName} not found`);
         }
 
         // Exit current state
-        this.currentState?.onExit?.(this.context);
+        await this.currentState?.onExit?.(this.context);
 
         // Enter new state
         this.currentState = newState;
-        this.currentState.onEnter?.(this.context);
+        await this.currentState.onEnter?.(this.context);
     }
 
     public getCurrentState(): string | null {

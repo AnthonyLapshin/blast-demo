@@ -8,7 +8,7 @@ export class GameRemoveCluster extends BaseState<GameContext>{
         super(GameRemoveCluster.STATE_NAME);
     }
 
-    public onEnter(context: GameContext): void {
+    public async onEnter(context: GameContext): Promise<void> {
         console.log(`[GameState] Entering ${GameRemoveCluster.STATE_NAME}`);
         
         const cluster = context.currentCluster;

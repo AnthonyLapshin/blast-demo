@@ -31,7 +31,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.context.itemPrefabs = items;
     }
 
-    private setupStates() : void {
+    private async setupStates() : Promise<void> {
         this.addState(new GameFillField());
         this.addState(new GameIdle());
         this.addState(new GameSearchCluster());
@@ -45,7 +45,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
     }
     
     // init -> IDLE
-    private setupTransitions() : void{
+    private async setupTransitions() : Promise<void> {
         this.addTransition({
             from: GameFillField.STATE_NAME,
             to: GameIdle.STATE_NAME,
@@ -177,30 +177,13 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
-        this.setInitialState(GameFillField.STATE_NAME);
+        await this.setInitialState(GameFillField.STATE_NAME);
     }
 
-    public bind(node: Node) {
+    public async bind(node: Node): Promise<void> {
         this.context.gameNode = node;
-        const conf = this.context.lvlConf;
-        const transform = node.getComponent(UITransform);
-        
-        const pixelWidth = conf.width * conf.cellWidth;
-        const pixelHeight = conf.height * conf.cellHeight;
-
-        transform.setContentSize(pixelWidth, pixelHeight);
-
-        var adjustmentHeight = conf.cellHeight %2 == 0? 0 : conf.cellHeight;
-        var adjustmentWidth = conf.cellWidth %2 == 0? 0 : conf.cellWidth;
-        
-        // Center the node
-        node.setPosition(
-            -(transform.width * transform.node.scale.x - adjustmentWidth/2) / 2,
-            -(transform.height * transform.node.scale.y - adjustmentHeight/2) / 2
-        );
-
-        this.setupStates();
-        this.setupTransitions();
+        await this.setupStates();
+        await this.setupTransitions();
         this.context.onClickedItemCb = this.onItemClicked.bind(this);
     }
 

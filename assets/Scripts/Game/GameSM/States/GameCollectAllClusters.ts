@@ -7,13 +7,13 @@ import { GameContext } from "../GameContext";
 
 export class GameCollectAllClusters extends BaseState<GameContext> {
     public static readonly STATE_NAME: string = 'GameCollectAllClusters'
-    private readonly _clusterSeeker: IClusterSeekerService =  inject(ClusterSeekerService);
+    private readonly _clusterSeeker: IClusterSeekerService = inject(ClusterSeekerService);
     
     constructor() {
         super(GameCollectAllClusters.STATE_NAME);
     }
 
-    public onEnter(context: GameContext): void {
+    public async onEnter(context: GameContext): Promise<void> {
         console.log(`[GameState] Entering ${GameCollectAllClusters.STATE_NAME}`);
         const conf = context.gameConf;
         const items = context.items;
@@ -21,5 +21,6 @@ export class GameCollectAllClusters extends BaseState<GameContext> {
         if (context.remainClusters.length >0 ){
             context.shuffleCounter = 0;
         }
+        console.log(`[GameState] Remains clusters: ${context.remainClusters.length}`);
     }
 }

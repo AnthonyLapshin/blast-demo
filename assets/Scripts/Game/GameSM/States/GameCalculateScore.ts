@@ -8,15 +8,15 @@ export class GameCalculateScore extends BaseState<GameContext> {
         super(GameCalculateScore.STATE_NAME);
     }
 
-    public onEnter(context: GameContext): void {
+    public async onEnter(context: GameContext): Promise<void> {
         console.log(`[GameState] Entering ${GameCalculateScore.STATE_NAME}`);
         context.gameMoves ++;
 
         const itemType: string = context.currentCluster[0].ItemType
         const payOut:number = context.lvlConf.paytable[itemType]
-        context.points += payOut * context.currentCluster.length;
+        context.gameScore += payOut * context.currentCluster.length;
 
         console.log(`[GameState] Game moves: ${context.gameMoves}`);
-        console.log(`[GameState] Points: ${context.points}`);
+        console.log(`[GameState] Points: ${context.gameScore}`);
     }
 }

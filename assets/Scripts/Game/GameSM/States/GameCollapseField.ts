@@ -1,9 +1,11 @@
+import { inject } from "../../../Libs/Injects/inject";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
+import { FieldCoordinatesService } from "../../../Services/FieldCoordinatesService";
 import { GameContext } from "../GameContext";
 
 export class GameCollapseField extends BaseState<GameContext>{
     public static readonly STATE_NAME: string = 'GameCollapseField';
-    
+    private readonly _coordinatesService: FieldCoordinatesService = inject(FieldCoordinatesService);
     constructor() {
         super(GameCollapseField.STATE_NAME);
     }
@@ -16,19 +18,22 @@ export class GameCollapseField extends BaseState<GameContext>{
         const movingItems = [];
 
         // Process each column independently
-        for (let col = 0; col < items.length; col++) {
+        for (let i = 0; i < items.length; i++) {
             // Start checking from bottom
-            for (let row = 0; row < height; row++) {
-                if (!items[col][row]) {
+            for (let j = 0; j < height; j++) {
+                if (!items[i][j]) {
                     // Found an empty spot, look above for items to fall
-                    for (let above = row + 1; above < height; above++) {
-                        var item = items[col][above];
+                    for (let above = j + 1; above < height; above++) {
+                        var item = items[i][above];
                         if (item) {
+
                              // Track the movement
-                             movingItems.push(item.moveToPosition(col * conf.cellWidth, row * conf.cellHeight, 0.2, (above - row) * 0.1));
+                             var cords = this._coordinatesService.fieldToWorldCoordsinates(i, j);
+
+                             movingItems.push(item.moveToPosition(cords.x, cords.y, 0.07, i * 0.04));
                             // Update grid references
-                            items[col][row] = items[col][above];
-                            items[col][above] = null;
+                            items[i][j] = items[i][above];
+                            items[i][above] = null;
                             break;
                         }
                     }

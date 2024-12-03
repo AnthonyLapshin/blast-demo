@@ -1,9 +1,11 @@
+import { inject } from "../../../Libs/Injects/inject";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
+import { FieldCoordinatesService } from "../../../Services/FieldCoordinatesService";
 import { GameContext } from "../GameContext";
 
 export class GameReshuffleField extends BaseState<GameContext>{
     public static readonly STATE_NAME: string = 'GameReshuffleField';
-
+    private readonly _coordinatesService: FieldCoordinatesService = inject(FieldCoordinatesService);
     constructor() {
         super(GameReshuffleField.STATE_NAME);
     }
@@ -20,7 +22,8 @@ export class GameReshuffleField extends BaseState<GameContext>{
         for (let i = 0; i < lvlConf.width; i++) {
             for (let j = 0; j < lvlConf.height; j++) {
                 var item = items[i][j];
-                movingItems.push(item.moveToPosition(i * lvlConf.cellWidth, j * lvlConf.cellHeight, 0.5));
+                var cords = this._coordinatesService.fieldToWorldCoordsinates(i, j);
+                movingItems.push(item.moveToPosition(cords.x, cords.y, 1));
             }
         }
         // Wait for all movements to complete
@@ -28,7 +31,7 @@ export class GameReshuffleField extends BaseState<GameContext>{
         context.isMovingItems = false;
     }
 
-    public onExit(context: GameContext): void {
+    public async onExit(context: GameContext): Promise<void> {
         context.shuffleCounter++;
     }
 }

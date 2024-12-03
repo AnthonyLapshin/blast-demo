@@ -12,7 +12,7 @@ export class GameSearchCluster extends BaseState<GameContext>{
         super(GameSearchCluster.STATE_NAME);
     }
 
-    public onEnter(context: GameContext): void {
+    public async onEnter(context: GameContext): Promise<void> {
         console.log(`[GameState] Entering ${GameSearchCluster.STATE_NAME}`);
         const conf = context.gameConf;
         const item = context.selectedItem;

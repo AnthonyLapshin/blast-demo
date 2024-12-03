@@ -1,10 +1,14 @@
 import { GameFieldItem } from "../../../GameField/GameFieldItem";
+import { inject } from "../../../Libs/Injects/inject";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
 import { ArrayUtils } from "../../../Libs/utils/ArrayUtils";
+import { FieldCoordinatesService } from "../../../Services/FieldCoordinatesService";
 import { GameContext } from "../GameContext";
 
 export class GameRefillGrid extends BaseState<GameContext>{
     public static readonly STATE_NAME: string = 'GameRefillGrid'
+
+    private readonly _coordinatesService: FieldCoordinatesService = inject(FieldCoordinatesService);
 
     constructor() {
         super(GameRefillGrid.STATE_NAME);
@@ -27,10 +31,13 @@ export class GameRefillGrid extends BaseState<GameContext>{
                     ArrayUtils.removeItem(itemPool, item);
                     items[i][j] = item;
                     // add item on top of the grid (it will be behind the mask)
-                    item.node.setPosition(i * lvlConf.cellWidth, (lvlConf.height + 1) * lvlConf.cellHeight);
+                    var cords = this._coordinatesService.fieldToWorldCoordsinates(i, j);
+                    var spawnCords =  this._coordinatesService.fieldSpawnToWorldCoordsinates(i, j);
+                    item.node.setPosition(spawnCords.x, spawnCords.y);
+
                     rootNode.addChild(item.node);
                      // Track the movement
-                     movingItems.push(item.moveToPosition(i * lvlConf.cellWidth, j * lvlConf.cellHeight, 0.2, (lvlConf.height - j) * 0.15));
+                     movingItems.push(item.moveToPosition(cords.x, cords.y, 0.1, i * 0.08));
                 }
             }
         }

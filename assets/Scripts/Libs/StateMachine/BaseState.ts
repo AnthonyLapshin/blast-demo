@@ -1,13 +1,17 @@
 import { IState } from './interfaces/IState';
 
 export abstract class BaseState<TContext> implements IState<TContext> {
-    public readonly name: string;
+    private readonly _name: string;
 
     constructor(name: string) {
-        this.name = name;
+        this._name = name;
     }
 
-    public onEnter?(context: TContext): void;
-    public onExit?(context: TContext): void;
-    public update?(context: TContext): void;
+    public get name(): string {
+        return this._name;
+    }
+
+    public async onEnter?(context: TContext): Promise<void>;
+    public async onExit?(context: TContext): Promise<void>;
+    public async update?(context: TContext): Promise<void>;
 }

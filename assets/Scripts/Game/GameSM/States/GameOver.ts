@@ -8,7 +8,7 @@ export class GameOver extends BaseState<GameContext>{
         super(GameOver.STATE_NAME);
     }
 
-    public onEnter(context: GameContext): void {
+    public async onEnter(context: GameContext): Promise<void> {
         console.log(`[GameState] Entering ${GameOver.STATE_NAME}`);
         
         // Clean up the game field

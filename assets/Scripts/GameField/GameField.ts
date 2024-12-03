@@ -1,6 +1,9 @@
-import { _decorator, Component, Prefab } from "cc";
+import { _decorator, Component, Prefab, UITransform, Node, Vec2, Vec3, Size} from "cc";
 import { inject } from "../Libs/Injects/inject";
 import { GameStateMachine } from "../Game/GameSM/GameSM";
+import { IUIService } from "../Services/IUIService";
+import { UIService } from "../Services/UIService";
+import { Paddings } from "../Game/Base/Paddiings";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameField')
@@ -8,15 +11,44 @@ export class GameField extends Component {
 
     @property({ type: [Prefab] })
     public itemPrefabs: Prefab[] = [];
+    
+    @property({ type: Node })
+    public targetNode: Node = null;
+
+    @property({ type: [Node] })
+    public scaleTargets: Node[] = [];
+
+    @property({ type: Node })
+    public maskTarget: Node = null;
+
+    @property({ type: Number})
+    public scaleTargetsPadding: Number = 0;
+
+    @property({ type: Paddings, visible: true, serializable: true })
+    public targetPaddings: Paddings = new Paddings();
+
+    @property({ type: Paddings, visible: true, serializable: true })
+    public maskPaddings: Paddings = new Paddings();
+
+    private _uiService: IUIService = inject(UIService);
 
     private _stateMachine: GameStateMachine = inject(GameStateMachine);
 
-    protected start(): void {
+    protected async start(): Promise<void> {
         this._stateMachine.setItems(this.itemPrefabs);
+        if (this.targetNode != null) {
+            await this._stateMachine.bind(this.targetNode);
+            await this._uiService.resetSize([this.targetNode], null);
+            await this._uiService.resetSize(this.scaleTargets, this.targetPaddings);
+            await this._uiService.resetSize([this.maskTarget], this.maskPaddings);
+            return;
+        }
+        
         this._stateMachine.bind(this.node);
     }
 
-    protected update(dt: number): void {
-        this._stateMachine.update();
+    protected async update(dt: number): Promise<void> {
+        await this._stateMachine.update();
+
     }
 }
