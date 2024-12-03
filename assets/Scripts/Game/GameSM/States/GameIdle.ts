@@ -9,13 +9,13 @@ export class GameIdle extends BaseState<GameContext>{
         super(GameIdle.STATE_NAME);
     }
 
-    public onEnter(context: GameContext): void {
+    public async onEnter(context: GameContext): Promise<void> {
         console.log(`[GameState] Entering ${GameIdle.STATE_NAME}`);
         context.gameNode.on(SelectedItemData.SELECTED_EVENT, this.onItemSelected, this);
         this._context = context;
     }
 
-    public onExit(context: GameContext): void {
+    public async onExit(context: GameContext): Promise<void> {
         context.gameNode.off(SelectedItemData.SELECTED_EVENT, this.onItemSelected, this);
     }
 
