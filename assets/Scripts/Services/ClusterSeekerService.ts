@@ -14,7 +14,7 @@ export class ClusterSeekerService implements IClusterSeekerService {
 
         const targetValue = items[startX][startY][propertyName];
         
-        const cluster = this.findCluster(items, visited, startX, startY, targetValue, propertyName);
+        const cluster = this.findCluster(items, visited, startX, startY, targetValue);
         
         if (cluster.length >= minClusterSize) {
             return cluster;
