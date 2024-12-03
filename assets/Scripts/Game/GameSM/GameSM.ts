@@ -14,12 +14,11 @@ import { GameRefillGrid } from "./States/GameRefillGrid";
 import { GameCollectAllClusters } from "./States/GameCollectAllClusters";
 import { GameReshuffleField } from "./States/GameReshuffleField";
 import { GameOver } from "./States/GameOver";
+import { GameCalculateScore } from "./States/GameCalculateScore";
 
 @singleton()
 export class GameStateMachine extends FiniteStateMachine<GameContext> 
-{
-    public static readonly CLICKED_EVENT: string = 'item-clicked';
-    
+{   
     constructor() {
         const context: GameContext = inject(GameContext);    
         super(context);
@@ -42,6 +41,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.addState(new GameCollectAllClusters());
         this.addState(new GameReshuffleField());
         this.addState(new GameOver());
+        this.addState(new GameCalculateScore());
     }
     
     // init -> IDLE
@@ -85,14 +85,22 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
+        // Search for cluster -> Calculate score
         this.addTransition({
             from: GameSearchCluster.STATE_NAME,
-            to: GameRemoveCluster.STATE_NAME,
+            to: GameCalculateScore.STATE_NAME,
             guardCondition: (context) => {
                 return context.currentCluster != null;
             },
         });
 
+        // Calculate score -> Remove cluster
+        this.addTransition({
+            from: GameCalculateScore.STATE_NAME,
+            to: GameRemoveCluster.STATE_NAME
+        });
+
+        // Remove cluster -> Collapse
         this.addTransition({
             from: GameRemoveCluster.STATE_NAME,
             to: GameCollapseField.STATE_NAME,
@@ -100,7 +108,8 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
                 return context.currentCluster == null;
             },
         });
-
+        
+        // Collapse -> Refill
         this.addTransition({
             from: GameCollapseField.STATE_NAME,
             to: GameRefillGrid.STATE_NAME,
@@ -109,6 +118,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
+        // Refill -> Collect
         this.addTransition({
             from: GameRefillGrid.STATE_NAME,
             to: GameCollectAllClusters.STATE_NAME,
@@ -117,6 +127,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
+        // Collect -> Reshuffle
         this.addTransition({
             from: GameCollectAllClusters.STATE_NAME,
             to: GameReshuffleField.STATE_NAME,
@@ -126,6 +137,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
+        // Reshuffle -> Collect
         this.addTransition({
             from: GameReshuffleField.STATE_NAME,
             to: GameCollectAllClusters.STATE_NAME,
@@ -134,7 +146,8 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
                 && context.canReshuffle == true;
             },
         });
-
+        
+        // Collect -> IDLE
         this.addTransition({
             from: GameCollectAllClusters.STATE_NAME,
             to: GameIdle.STATE_NAME,
@@ -144,6 +157,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
+        // Reshuffle -> Game Over
         this.addTransition({
             from: GameReshuffleField.STATE_NAME,
             to: GameOver.STATE_NAME,
@@ -153,6 +167,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
+        // Reshuffle -> IDLE
         this.addTransition({
             from: GameReshuffleField.STATE_NAME,
             to: GameIdle.STATE_NAME,

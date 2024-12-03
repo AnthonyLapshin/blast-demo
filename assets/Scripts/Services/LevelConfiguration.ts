@@ -4,11 +4,22 @@ import { ILevelConfigurationService } from "./ILevelConfiguration";
 @singleton()
 export class LevelConfigurationService implements ILevelConfigurationService {
 
-    private  _width: number = 10;
-    private  _height: number = 10;
-    private  _cellWidth: number = 171;
-    private  _cellHeight: number = 192;
+    private readonly _width: number = 10;
+    private readonly _height: number = 10;
+    private readonly _cellWidth: number = 171;
+    private readonly _cellHeight: number = 192;
+    private readonly _paytable: Record<string, number> = {
+        "BlueItem": 10,
+        "GreenItem": 20,
+        "PurpleItem": 30,
+        "RedItem": 40,
+        "YellowItem": 50
+    };
 
+    public get paytable(): Record<string, number> {
+        return this._paytable;
+    }
+    
     public get width(): number{
         return this._width;
     }

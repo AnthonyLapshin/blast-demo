@@ -1,4 +1,4 @@
-import { Prefab, Node, Vec2 } from "cc";
+import { Prefab, Node } from "cc";
 import { singleton } from "../../Libs/Injects/decorators/singleton";
 import { IGameContext } from "./IGameContext";
 import { GameFieldItem } from "../../GameField/GameFieldItem";
@@ -33,8 +33,26 @@ export class GameContext implements IGameContext {
     
     private _onClickedItemCb: Function = null;
 
+    private _gameScore: number = 0;
+    private _gameMoves: number = 0;
 
     // ========================= Getters & Setters =========================
+
+    public get gameMoves(): number {
+        return this._gameMoves;
+    }
+
+    public set gameMoves(value: number) {
+        this._gameMoves = value;
+    }
+
+    public get gameScore(): number {
+        return this._gameScore;
+    }
+
+    public set gameScore(value: number) {
+        this._gameScore = value;
+    }
 
     public get onClickedItemCb(): Function {
         return this._onClickedItemCb;
