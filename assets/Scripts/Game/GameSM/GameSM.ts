@@ -76,6 +76,15 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             },
         });
 
+        // IDLE -> Search for cluster
+        this.addTransition({
+            from: GameIdle.STATE_NAME,
+            to: GameOver.STATE_NAME,
+            guardCondition: (context) => {
+                return context.outOfMoves || context.pointTargetReached;
+            },
+        });
+
         // Search for cluster -> IDLE
         this.addTransition({
             from: GameSearchCluster.STATE_NAME,

@@ -56,6 +56,14 @@ export class GameContext implements IGameContext {
     }
     // ========================= Getters & Setters =========================
 
+    public get outOfMoves(): boolean {
+        return this._gameMoves >= this.lvlConf.maxMoves;
+    }
+
+    public get pointTargetReached(): boolean {
+        return this._gameScore >= this.lvlConf.targetScore;
+    }
+
     public get gameMoves(): number {
         return this._gameMoves;
     }

@@ -6,6 +6,9 @@ import { SelectedItemData } from "../Base/SelectedItemData";
 
 
 export interface IGameContext {
+    get outOfMoves(): boolean;
+    get pointTargetReached(): boolean;
+    
     get gameScore(): number
     set gameScore(value: number)
     

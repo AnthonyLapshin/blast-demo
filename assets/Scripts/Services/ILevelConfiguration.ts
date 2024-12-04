@@ -6,4 +6,6 @@ export interface ILevelConfigurationService {
     get cellWidth(): number;
     get cellHeight(): number;
     get paytable(): Record<string, number>;
+    get maxMoves(): number;
+    get targetScore(): number;
 }
