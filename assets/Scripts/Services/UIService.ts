@@ -28,28 +28,10 @@ export class UIService implements IUIService {
             const targetTransform = target.getComponent(UITransform);
             if (targetTransform == null) continue;
             
-            // var oldPos = target.position;
-            // var newdPos = new Vec3(oldPos.x - paddings.left, oldPos.y-paddings.bottom);
-            // target.position = newdPos;
-
-            // targetTransform.setContentSize(
-            //     pixelWidth + (paddings.right + paddings.left), 
-            //     pixelHeight + (paddings.top + paddings.bottom));
-
-            // Calculate the content size with paddings
             const totalWidth = pixelWidth + (paddings ? paddings.right + paddings.left : 0);
             const totalHeight = pixelHeight + (paddings ? paddings.top + paddings.bottom : 0);
 
-            // Set the new size first
             targetTransform.setContentSize(totalWidth, totalHeight);
-
-            // Calculate center position with paddings
-            // Move the center to the middle of the screen and adjust for paddings
-            const centerX = (paddings ? -paddings.left : 0);
-            const centerY = (paddings ? -paddings.bottom : 0);
-
-            // Set the position
-            target.position = new Vec3(centerX, centerY, 0);
         }
     }
 }

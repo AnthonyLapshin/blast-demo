@@ -16,6 +16,17 @@ export class LevelConfigurationService implements ILevelConfigurationService {
         "YellowItem": 50
     };
 
+    private readonly _maxMoves: number = 15;
+    private readonly _targetScore: number = 15500;
+
+    public get maxMoves(): number{
+        return this._maxMoves;
+    }
+    
+    public get targetScore(): number{
+        return this._targetScore;
+    }
+
     public get paytable(): Record<string, number> {
         return this._paytable;
     }

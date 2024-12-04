@@ -1,4 +1,5 @@
-export interface IGameStatsObserver {
+export interface IGameScoreObserver {
     onScoreChanged(newScore: number): void;
-    onMovesChanged(newMoves: number): void;
 }
+
+
