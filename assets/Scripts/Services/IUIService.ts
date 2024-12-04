@@ -1,5 +1,5 @@
 import { Node } from "cc";
-import { Paddings } from "../Game/Base/Paddiings";
+import { Paddings } from "../UI/Paddiings";
 export interface IUIService {
     resetSize(scaleTargets: Node[], paddings: Paddings):Promise<void>;
 }

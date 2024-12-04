@@ -4,7 +4,7 @@ import { inject } from "../Libs/Injects/inject";
 import { ILevelConfigurationService } from "./ILevelConfiguration";
 import { IUIService } from "./IUIService";
 import { LevelConfigurationService } from "./LevelConfiguration";
-import { Paddings } from "../Game/Base/Paddiings";
+import { Paddings } from "../UI/Paddiings";
 const { ccclass, property } = _decorator;
 
 @injectable()

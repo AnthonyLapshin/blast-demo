@@ -3,7 +3,7 @@ import { inject } from "../Libs/Injects/inject";
 import { GameStateMachine } from "../Game/GameSM/GameSM";
 import { IUIService } from "../Services/IUIService";
 import { UIService } from "../Services/UIService";
-import { Paddings } from "../Game/Base/Paddiings";
+import { Paddings } from "../UI/Paddiings";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameField')

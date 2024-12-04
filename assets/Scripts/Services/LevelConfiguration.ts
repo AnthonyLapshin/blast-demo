@@ -1,3 +1,4 @@
+import { GameTool } from "../Game/EnumGameTool";
 import { singleton } from "../Libs/Injects/decorators/singleton";
 import { ILevelConfigurationService } from "./ILevelConfiguration";
 
@@ -15,6 +16,15 @@ export class LevelConfigurationService implements ILevelConfigurationService {
         "RedItem": 40,
         "YellowItem": 50
     };
+
+    private readonly _bombRadius: Record<string, number> = {
+        "BOMB_1": 1,
+        "BOMB_2": 2,
+    };
+    
+    public get bombRadius(): Record<string, number> {
+        return this._bombRadius;
+    }
 
     private readonly _maxMoves: number = 15;
     private readonly _targetScore: number = 15500;

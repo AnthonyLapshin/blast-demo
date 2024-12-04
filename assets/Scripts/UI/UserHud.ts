@@ -1,7 +1,7 @@
 import { _decorator, Component, Label, ProgressBar } from 'cc';
 import { GameContext } from '../Game/GameSM/GameContext';
 import { inject } from '../Libs/Injects/inject';
-import { IGameStatsObserver } from '../Game/Base/IGameStatsObserver';
+import { IGameStatsObserver } from '../Game/GameSM/IGameStatsObserver';
 import { LevelConfigurationService } from '../Services/LevelConfiguration';
 
 const { ccclass, property } = _decorator;

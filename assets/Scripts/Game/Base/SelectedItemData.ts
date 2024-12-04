@@ -1,5 +1,5 @@
 import { Vec2 } from "cc";
-import { ISelectedItemData } from "./ISelectedItemEvent";
+import { ISelectedItemData } from "./ISelectedItemData";
 import { GameFieldItem } from "../../GameField/GameFieldItem";
 
 export class SelectedItemData implements ISelectedItemData {

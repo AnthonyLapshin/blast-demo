@@ -8,7 +8,8 @@ import { inject } from "../../Libs/Injects/inject";
 import { IGameConfigurationService } from "../../Services/IGameConfigurationService";
 import { ILevelConfigurationService } from "../../Services/ILevelConfiguration";
 import { SelectedItemData } from "../Base/SelectedItemData";
-import { IGameStatsObserver } from "../Base/IGameStatsObserver";
+import { IGameStatsObserver } from "./IGameStatsObserver";
+import { GameTool } from "../EnumGameTool";
 
 @singleton()
 
@@ -36,6 +37,8 @@ export class GameContext implements IGameContext {
     private _gameScore: number = 0;
     private _gameMoves: number = 0;
 
+    private _currentTool: GameTool = GameTool.SELECTOR;
+    
     // observers
     private _observers: Set<IGameStatsObserver> = new Set();
 
@@ -55,6 +58,13 @@ export class GameContext implements IGameContext {
         this._observers.forEach(observer => observer.onMovesChanged(newMoves));
     }
     // ========================= Getters & Setters =========================
+
+    public get currentTool(): GameTool {
+        return this._currentTool;
+    }
+    public set currentTool(value: GameTool) {
+        this._currentTool = value;
+    }
 
     public get outOfMoves(): boolean {
         return this._gameMoves >= this.lvlConf.maxMoves;

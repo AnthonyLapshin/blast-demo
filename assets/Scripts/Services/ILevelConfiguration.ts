@@ -8,4 +8,5 @@ export interface ILevelConfigurationService {
     get paytable(): Record<string, number>;
     get maxMoves(): number;
     get targetScore(): number;
+    get bombRadius(): Record<string, number>;
 }

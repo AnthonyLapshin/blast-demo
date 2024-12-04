@@ -15,6 +15,8 @@ import { GameCollectAllClusters } from "./States/GameCollectAllClusters";
 import { GameReshuffleField } from "./States/GameReshuffleField";
 import { GameOver } from "./States/GameOver";
 import { GameCalculateScore } from "./States/GameCalculateScore";
+import { GameTool } from "../EnumGameTool";
+import { GameBombActivation } from "./States/GameBombActivation";
 
 @singleton()
 export class GameStateMachine extends FiniteStateMachine<GameContext> 
@@ -42,6 +44,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.addState(new GameReshuffleField());
         this.addState(new GameOver());
         this.addState(new GameCalculateScore());
+        this.addState(new GameBombActivation());
     }
     
     // init -> IDLE
@@ -51,7 +54,7 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             to: GameIdle.STATE_NAME,
             guardCondition: (context) => {
                 return context.needReshuffle == false 
-                &&context.items.length >0 
+                &&context.items.length > 0 
                 && context.itemsPool.length >0 
                 && context.gameNode != null;
             },
@@ -72,8 +75,26 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             from: GameIdle.STATE_NAME,
             to: GameSearchCluster.STATE_NAME,
             guardCondition: (context) => {
-                return context.selectedItem != null;
+                return context.selectedItem != null
+                && context.currentTool == GameTool.SELECTOR;
             },
+        });
+
+        // IDLE -> Bomb
+        this.addTransition({
+            from: GameIdle.STATE_NAME,
+            to: GameBombActivation.STATE_NAME,
+            guardCondition: (context) => {
+                return context.selectedItem != null
+                && (context.currentTool == GameTool.BOMB_1 
+                || context.currentTool == GameTool.BOMB_2);
+            },
+        });
+
+        // Bomb -> Calculation
+        this.addTransition({
+            from: GameBombActivation.STATE_NAME,
+            to: GameCalculateScore.STATE_NAME
         });
 
         // IDLE -> Search for cluster

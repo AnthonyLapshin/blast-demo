@@ -3,9 +3,13 @@ import { GameFieldItem } from "../../GameField/GameFieldItem";
 import { IGameConfigurationService } from "../../Services/IGameConfigurationService";
 import { ILevelConfigurationService } from "../../Services/ILevelConfiguration";
 import { SelectedItemData } from "../Base/SelectedItemData";
-
+import { GameTool } from "../EnumGameTool";
 
 export interface IGameContext {
+
+    get currentTool(): GameTool;
+    set currentTool(value: GameTool);
+
     get outOfMoves(): boolean;
     get pointTargetReached(): boolean;
     
