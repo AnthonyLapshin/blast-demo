@@ -1,3 +1,9 @@
+/**
+ * @file singleton.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-02
+ */
+
 import {injectable} from "./injectable";
 import {classMap} from "../dependency-injection";
 import {Constructor} from "../type/Type";

@@ -1,3 +1,9 @@
+/**
+ * @file injectable.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-02
+ */
+
 import {InjectionMapping} from "../InjectionMapping";
 import {classMap} from "../dependency-injection";
 import {Constructor} from "../type/Type";

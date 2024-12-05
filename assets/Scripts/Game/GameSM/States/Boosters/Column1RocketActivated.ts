@@ -1,16 +1,30 @@
+/**
+ * @file Column1RocketActivated.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-05
+ */
+
 import { GameFieldItem } from "../../../../GameField/GameFieldItem";
 import { BaseState } from "../../../../Libs/StateMachine/BaseState";
 import { GameContext } from "../../GameContext";
 
+/**
+ * Represents the state when a single-column rocket booster is activated.
+ * This booster clears all items in a single column of the game field.
+ */
 export class Column1RocketActivated extends BaseState<GameContext> {
     public static readonly STATE_NAME: string = 'Column1RocketActivated';
+
     constructor() {
         super(Column1RocketActivated.STATE_NAME);
     }
 
+    /**
+     * Handles entering the column rocket activation state.
+     * Collects all items in the selected column for removal.
+     * @param context - The game context
+     */
     public async onEnter(context: GameContext): Promise<void> {
-        console.log(`[GameState] Entering ${Column1RocketActivated.STATE_NAME}`);
-        
         const items = context.items;
         const cluster: GameFieldItem[] = [];
         
@@ -22,6 +36,5 @@ export class Column1RocketActivated extends BaseState<GameContext> {
         }
         
         context.currentCluster = cluster;
-        console.log(`Column 1 Rocket activated: Selected ${cluster.length} items`);
     }
 }   

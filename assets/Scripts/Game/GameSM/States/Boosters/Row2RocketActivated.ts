@@ -1,16 +1,30 @@
+/**
+ * @file Row2RocketActivated.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-05
+ */
+
 import { GameFieldItem } from "../../../../GameField/GameFieldItem";
 import { BaseState } from "../../../../Libs/StateMachine/BaseState";
 import { GameContext } from "../../GameContext";
 
+/**
+ * Represents the state when a double-row rocket booster is activated.
+ * This booster clears all items in two adjacent rows of the game field.
+ */
 export class Row2RocketActivated extends BaseState<GameContext> {
     public static readonly STATE_NAME: string = 'Row2RocketActivated';
+
     constructor() {
         super(Row2RocketActivated.STATE_NAME);
     }
 
+    /**
+     * Handles entering the double-row rocket activation state.
+     * Collects all items in the selected row and an adjacent row for removal.
+     * @param context - The game context
+     */
     public async onEnter(context: GameContext): Promise<void> {
-        console.log(`[GameState] Entering ${Row2RocketActivated.STATE_NAME}`);
-
         const items = context.items;
         const cluster: GameFieldItem[] = [];
 
@@ -25,7 +39,5 @@ export class Row2RocketActivated extends BaseState<GameContext> {
         }
 
         context.currentCluster = cluster;
-
-        console.log(`Row 2 Rocket activated: Selected ${cluster.length} items`);
     }
 }   

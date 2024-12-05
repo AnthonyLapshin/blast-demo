@@ -1,13 +1,28 @@
+/**
+ * @file GameRemoveCluster.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-05
+ */
+
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
 import { GameContext } from "../GameContext";
 
-export class GameRemoveCluster extends BaseState<GameContext>{
+/**
+ * Represents the state where the game removes a cluster of items from the game field.
+ * This state is entered after a valid cluster has been found and selected.
+ */
+export class GameRemoveCluster extends BaseState<GameContext> {
     public static readonly STATE_NAME: string = 'GameRemoveCluster';
 
     constructor() {
         super(GameRemoveCluster.STATE_NAME);
     }
 
+    /**
+     * Handles entering the cluster removal state.
+     * Removes the selected cluster of items from the game field and adds them to the appropriate pools.
+     * @param context - The game context
+     */
     public async onEnter(context: GameContext): Promise<void> {
         const cluster = context.currentCluster;
         if (!cluster || cluster.length === 0) {

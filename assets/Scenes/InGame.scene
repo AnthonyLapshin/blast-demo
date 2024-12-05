@@ -4560,11 +4560,11 @@
     "movesLabel": {
       "__id__": 52
     },
-    "gamveOverWindow": {
-      "__id__": 95
-    },
-    "progressBar": {
+    "scoreProgress": {
       "__id__": 29
+    },
+    "gameOverWindow": {
+      "__id__": 95
     },
     "_id": "85y0pDi9dA9LgHKIUHSIgp"
   },

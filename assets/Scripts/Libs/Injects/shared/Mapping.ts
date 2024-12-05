@@ -1,3 +1,9 @@
+/**
+ * @file Mapping.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-02
+ */
+
 import {IGuard} from "../interfaces/IGuard";
 import {IMapping} from "../interfaces/IMapping";
 

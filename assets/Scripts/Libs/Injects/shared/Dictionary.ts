@@ -1,3 +1,9 @@
+/**
+ * @file Dictionary.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-02
+ */
+
 import {UniqueUtils} from "../utils/UniqueUtils";
 import {IAssociativeArray} from "../../utils/ArrayUtils";
 

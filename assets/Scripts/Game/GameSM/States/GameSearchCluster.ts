@@ -1,9 +1,19 @@
+/**
+ * @file GameSearchCluster.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-06
+ */
+
 import { inject } from "../../../Libs/Injects/inject";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
 import { ClusterSeekerService } from "../../../Services/ClusterSeekerService";
-import { IClusterSeekerService } from "../../../Services/IClusterSeekerService";
+import { IClusterSeekerService } from "../../../Services/Interfaces/IClusterSeekerService";
 import { GameContext } from "../GameContext";
 
+/**
+ * Represents the state where the game searches for a cluster of matching items.
+ * A cluster is a group of adjacent items of the same type that can be removed together.
+ */
 export class GameSearchCluster extends BaseState<GameContext>{
     public static readonly STATE_NAME: string = 'GameSearchCluster';
     private readonly _clusterSeeker: IClusterSeekerService =  inject(ClusterSeekerService);
@@ -12,6 +22,11 @@ export class GameSearchCluster extends BaseState<GameContext>{
         super(GameSearchCluster.STATE_NAME);
     }
 
+    /**
+     * Handles entering the cluster search state.
+     * Searches for a cluster of matching items around the selected item.
+     * @param context - The game context
+     */
     public async onEnter(context: GameContext): Promise<void> {
         const conf = context.gameConf;
         const item = context.selectedItem;

@@ -1,3 +1,9 @@
+/**
+ * @file inject.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-02
+ */
+
 import {IInjectable} from "./interfaces/IInjectable";
 import {Class} from "./type/Type";
 import {Kernel} from "./Kernel";

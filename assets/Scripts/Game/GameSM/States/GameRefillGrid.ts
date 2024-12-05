@@ -1,3 +1,9 @@
+/**
+ * @file GameRefillGrid.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-05
+ */
+
 import { GameFieldItem } from "../../../GameField/GameFieldItem";
 import { inject } from "../../../Libs/Injects/inject";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
@@ -5,6 +11,11 @@ import { ArrayUtils } from "../../../Libs/utils/ArrayUtils";
 import { FieldCoordinatesService } from "../../../Services/FieldCoordinatesService";
 import { GameContext } from "../GameContext";
 
+/**
+ * Represents the state where the game refills the grid with new items.
+ * This state is entered after items have been removed and the field has collapsed,
+ * ensuring the grid is always full and playable.
+ */
 export class GameRefillGrid extends BaseState<GameContext>{
     public static readonly STATE_NAME: string = 'GameRefillGrid'
 
@@ -14,9 +25,12 @@ export class GameRefillGrid extends BaseState<GameContext>{
         super(GameRefillGrid.STATE_NAME);
     }
 
+    /**
+     * Handles entering the grid refill state.
+     * Identifies empty spaces and fills them with new items.
+     * @param context - The game context
+     */
     public async onEnter(context: GameContext): Promise<void> {
-        console.log(`[GameState] Entering ${GameRefillGrid.STATE_NAME}`);
-        
         const items = context.items;
         const itemPool = context.itemsPool;
         const lvlConf = context.lvlConf;

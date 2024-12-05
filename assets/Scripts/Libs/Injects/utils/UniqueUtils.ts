@@ -1,3 +1,9 @@
+/**
+ * @file UniqueUtils.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-02
+ */
+
 export class UniqueUtils {
 
     protected static UNIQUE_ID_PROP_NAME: string = "UniqueId";

@@ -1,3 +1,9 @@
+/**
+ * @file GameSM.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-05
+ */
+
 import { singleton } from "../../Libs/Injects/decorators/singleton";
 import { inject } from "../../Libs/Injects/inject";
 import { FiniteStateMachine } from "../../Libs/StateMachine/FiniteStateMachine";
@@ -7,7 +13,7 @@ import { GameIdle } from "./States/GameIdle";
 import { GameFieldItem } from "../../GameField/GameFieldItem";
 import { SelectedItemData } from "../Base/SelectedItemData";
 import { GameSearchCluster } from "./States/GameSearchCluster";
-import { Vec2, Node, UITransform, Prefab } from "cc";
+import { Vec2, Node, Prefab } from "cc";
 import { GameRemoveCluster } from "./States/GameRemoveCluster";
 import { GameCollapseField } from "./States/GameCollapseField";
 import { GameRefillGrid } from "./States/GameRefillGrid";
@@ -25,14 +31,28 @@ import { Column2RocketActivated } from "./States/Boosters/Column2RocketActivated
 import { Row1RocketActivated } from "./States/Boosters/Row1RocketActivated";
 import { Row2RocketActivated } from "./States/Boosters/Row2RocketActivated";
 
+/**
+ * Game State Machine class that manages the game's state transitions and logic.
+ * This class extends the FiniteStateMachine to handle various game states like
+ * idle, searching for clusters, removing clusters, dropping boosters, etc.
+ * It coordinates the flow between different game states and maintains the overall
+ * game progression.
+ */
 @singleton()
 export class GameStateMachine extends FiniteStateMachine<GameContext> 
 {   
+    /**
+     * Initializes the game state machine with the game context.
+     */
     constructor() {
         const context: GameContext = inject(GameContext);    
         super(context);
     }
 
+    /**
+     * Sets the item prefabs for the game.
+     * @param items The item prefabs to set
+     */
     public setItems(items: Prefab[]): void {
         if(this.context.itemPrefabs != null){
             throw new Error('Items already set');
@@ -40,6 +60,10 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.context.itemPrefabs = items;
     }
 
+    /**
+     * Sets the drop prefabs for the game.
+     * @param items The drop prefabs to set
+     */
     public setDrops(items: Prefab[]): void {
         if(this.context.dropPrefabs != null){
             throw new Error('Drops already set');
@@ -47,6 +71,9 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.context.dropPrefabs = items;
     }
 
+    /**
+     * Sets up the game states.
+     */
     private async setupStates() : Promise<void> {
         this.addState(new GameFillField());
         this.addState(new GameIdle());
@@ -68,7 +95,9 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.addState(new Row2RocketActivated());        
     }
     
-    // init -> IDLE
+    /**
+     * Sets up the game state transitions.
+     */
     private async setupTransitions() : Promise<void> {
         this.addTransition({
             from: GameFillField.STATE_NAME,
@@ -203,7 +232,18 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         // Bomb -> Calculation
         this.addTransition({
             from: GameBombActivation.STATE_NAME,
-            to: GameCalculateScore.STATE_NAME
+            to: GameCalculateScore.STATE_NAME,
+            guardCondition: (context) => {
+                return !context.skipMove;
+            },
+        });
+
+        this.addTransition({
+            from: GameBombActivation.STATE_NAME,
+            to: GameIdle.STATE_NAME,
+            guardCondition: (context) => {
+                return context.skipMove;
+            },
         });
 
         // IDLE -> Search for cluster
@@ -342,6 +382,10 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         await this.setInitialState(GameFillField.STATE_NAME);
     }
 
+    /**
+     * Binds the game state machine to a node.
+     * @param node The node to bind to
+     */
     public async bind(node: Node): Promise<void> {
         this.context.gameNode = node;
         await this.setupStates();
@@ -349,16 +393,22 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.context.onClickedItemCb = this.onItemClicked.bind(this);
     }
 
+    /**
+     * Unbinds the game state machine from a node.
+     */
     public unbind() {
         this.context.gameNode = null;
     }
 
+    /**
+     * Handles an item click event.
+     * @param clickedItem The item that was clicked
+     */
     public onItemClicked(clickedItem: GameFieldItem): void {
          // Find the position of clicked item in the grid
          for (let i = 0; i < this.context.items.length; i++) {
             for (let j = 0; j < this.context.items[i].length; j++) {
                 if (this.context.items[i][j] === clickedItem) {
-                    console.log(`Clicked item at position [${i}, ${j}] of type ${clickedItem.ItemType}`);
                     var data = new SelectedItemData();
                     data.position = new Vec2(i, j);
                     data.item = clickedItem;

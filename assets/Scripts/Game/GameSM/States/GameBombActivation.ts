@@ -1,9 +1,15 @@
+/**
+ * @file GameBombActivation.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-06
+ */
+
 import { GameFieldItem } from "../../../GameField/GameFieldItem";
 import { inject } from "../../../Libs/Injects/inject";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
-import { ILevelConfigurationService } from "../../../Services/ILevelConfiguration";
-import { IPlayerInventoryObserver } from "../../../Services/IPlayerInventoryObserver";
-import { IPlayerInventoryService } from "../../../Services/IPlayerInventoryService";
+import { ILevelConfigurationService } from "../../../Services/Interfaces/ILevelConfiguration";
+import { IPlayerInventoryObserver } from "../../../Services/Interfaces/IPlayerInventoryObserver";
+import { IPlayerInventoryService } from "../../../Services/Interfaces/IPlayerInventoryService";
 import { LevelConfigurationService } from "../../../Services/LevelConfiguration";
 import { PlayerInventoryService } from "../../../Services/PlayerInventoryService";
 import { GameTool } from "../../EnumGameTool";
@@ -19,11 +25,13 @@ export class GameBombActivation extends BaseState<GameContext> {
 
     public async onEnter(context: GameContext): Promise<void> {
         
-        if (this._inventory.getAmount(GameTool.BOMB_1) <= 0) {
+        if (this._inventory.getAmount(context.currentTool) <= 0) {
+            context.skipMove = true;
+            context.currentTool = GameTool.SELECTOR;
             return;
         }
 
-        this._inventory.removeAmount(GameTool.BOMB_1, 1);
+        this._inventory.removeAmount(context.currentTool, 1);
 
         const selectedItem = context.selectedItem;
         if (!selectedItem) {
@@ -50,8 +58,5 @@ export class GameBombActivation extends BaseState<GameContext> {
         }
 
         context.currentCluster = cluster;
-    }
-
-    public async onExit(context: GameContext): Promise<void> {
     }
 }

@@ -1,3 +1,9 @@
+/**
+ * @file Kernel.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-02
+ */
+
 import {InjectionMapping} from "./InjectionMapping";
 import {IInjectable} from "./interfaces/IInjectable";
 import {classMap} from "./dependency-injection";

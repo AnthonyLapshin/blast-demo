@@ -1,83 +1,126 @@
+/**
+ * @file UserHud.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-06
+ */
+
 import { _decorator, Component, Label, ProgressBar, Node } from 'cc';
 import { GameContext } from '../Game/GameSM/GameContext';
 import { inject } from '../Libs/Injects/inject';
-import { IGameStatsObserver } from '../Game/GameSM/IGameStatsObserver';
+import { IGameStatsObserver } from '../Game/GameSM/States/Observers/IGameStatsObserver';
 import { LevelConfigurationService } from '../Services/LevelConfiguration';
 import { GameStateMachine } from '../Game/GameSM/GameSM';
-import { IGameStateObserver } from '../Game/GameSM/IGameStateObserver';
-
+import { IGameStateObserver } from '../Game/GameSM/States/Observers/IGameStateObserver';
 const { ccclass, property } = _decorator;
 
-@ccclass('GameHUD')
-export class GameHUD extends Component implements IGameStatsObserver, IGameStateObserver {
+/**
+ * Component that manages the game's heads-up display (HUD).
+ * This component displays and updates game information such as score,
+ * remaining moves, progress bars, and game over states.
+ */
+@ccclass('UserHud')
+/**
+ * UserHud class is responsible for managing the game's heads-up display (HUD).
+ * It displays and updates game information such as score, remaining moves, 
+ * progress bars, and game over states.
+ */
+export class UserHud extends Component implements IGameStatsObserver, IGameStateObserver {
+    /** Label displaying the current score */
+    @property({
+        type: Label,
+        tooltip: 'Label component for displaying the current game score'
+    })
+    private scoreLabel: Label | null = null;
 
-    @property(Label)
-    private scoreLabel: Label = null;
-    private _targetScore: number;
+    /** Label displaying remaining moves */
+    @property({
+        type: Label,
+        tooltip: 'Label component for displaying the remaining moves'
+    })
+    private movesLabel: Label | null = null;
 
-    @property(Label)
-    private movesLabel: Label = null;
+    /** Progress bar showing score progress */
+    @property({
+        type: ProgressBar,
+        tooltip: 'Progress bar component showing progress towards target score'
+    })
+    private scoreProgress: ProgressBar | null = null;
 
-    @property({type: Node, visible: true})
-    private gamveOverWindow: Node;
+    /** Window shown when game is over */
+    @property({
+        type: Node,
+        tooltip: 'Node containing the game over window UI'
+    })
+    private gameOverWindow: Node | null = null;
 
-    private readonly _levelConfig: LevelConfigurationService = inject(LevelConfigurationService);
-    private readonly _sm: GameStateMachine = inject(GameStateMachine);
-    
+    /** Reference to the game context */
     private readonly _context: GameContext = inject(GameContext);
+    /** Reference to the level configuration */
+    private readonly _lvlConf: LevelConfigurationService = inject(LevelConfigurationService);
+    /** Reference to the game state machine */
+    private readonly _stateMachine: GameStateMachine = inject(GameStateMachine);
 
-    @property(ProgressBar)
-    private progressBar: ProgressBar = null;
-
-    protected start(): void {
-        // Register as observer
+    /**
+     * Called when the component starts.
+     * Initializes the HUD and sets up observers.
+     */
+    start() {
         this._context.addObserver(this);
-        this._sm.addStateObserver(this);
-        this._targetScore = this._levelConfig.targetScore;
-        
-        // Initialize progress to 0
-        this.updateProgress(0);
-
-        // Initialize labels
-        this.updateScore(this._context.gameScore);
-        this.updateMoves(this._context.gameMoves);
+        this._stateMachine.addStateObserver(this);
+        this.updateScore(0);
+        this.updateMoves(0);
+        if (this.gameOverWindow) {
+            this.gameOverWindow.active = false;
+        }
     }
 
-    onGameStateChanged(newState: string): void {
-       if (newState == 'GameOver') {
-            this.gamveOverWindow.active = true;
-       }
+    /**
+     * Updates the score display.
+     * @param score The new score value
+     */
+    private updateScore(score: number): void {
+        if (this.scoreLabel) {
+            this.scoreLabel.string = score.toString();
+        }
+        if (this.scoreProgress) {
+            this.scoreProgress.progress = score / this._lvlConf.targetScore;
+        }
     }
 
-    protected onDestroy(): void {
-        // Cleanup
-        this._context.removeObserver(this);
+    /**
+     * Updates the moves display.
+     * @param moves The new moves value
+     */
+    private updateMoves(moves: number): void {
+        if (this.movesLabel) {
+            this.movesLabel.string = `${moves}/${this._lvlConf.maxMoves}`;
+        }
     }
 
-    public onScoreChanged(newScore: number): void {
+    /**
+     * Called when the game score changes.
+     * @param newScore The new score value
+     */
+    onScoreChanged(newScore: number): void {
         this.updateScore(newScore);
     }
 
-    public onMovesChanged(newMoves: number): void {
+    /**
+     * Called when the number of moves changes.
+     * @param newMoves The new moves value
+     */
+    onMovesChanged(newMoves: number): void {
         this.updateMoves(newMoves);
     }
 
-    private updateScore(score: number): void {
-        if (this.scoreLabel) {
-            this.scoreLabel.string = `Score: ${score} / ${this._targetScore}`;
+    /**
+     * Called when the game state changes.
+     * Shows the game over window when appropriate.
+     * @param newState The new game state
+     */
+    onStateChanged(newState: string): void {
+        if (newState === 'GameOver' && this.gameOverWindow) {
+            this.gameOverWindow.active = true;
         }
-        this.updateProgress(score)
-    }
-
-    private updateMoves(moves: number): void {
-        if (this.movesLabel) {
-            this.movesLabel.string = `${moves} / ${this._levelConfig.maxMoves}`;
-        }
-    }
-
-    private updateProgress(currentScore: number): void {
-        // Calculate progress as a value between 0 and 1
-        const progress = Math.min(currentScore / this._targetScore, 1);
-        this.progressBar.progress = progress;
     }
 }

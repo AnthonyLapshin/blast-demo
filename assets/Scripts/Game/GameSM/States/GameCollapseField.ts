@@ -1,8 +1,18 @@
+/**
+ * @file GameCollapseField.ts
+ * @author Anton Lapshin <anton@lapshin.dev>
+ * @created 2024-12-05
+ */
+
 import { inject } from "../../../Libs/Injects/inject";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
 import { FieldCoordinatesService } from "../../../Services/FieldCoordinatesService";
 import { GameContext } from "../GameContext";
 
+/**
+ * Represents the state where the game collapses the field after items are removed.
+ * This state handles the gravity effect where items fall to fill empty spaces below them.
+ */
 export class GameCollapseField extends BaseState<GameContext>{
     public static readonly STATE_NAME: string = 'GameCollapseField';
     private readonly _coordinatesService: FieldCoordinatesService = inject(FieldCoordinatesService);
@@ -10,8 +20,12 @@ export class GameCollapseField extends BaseState<GameContext>{
         super(GameCollapseField.STATE_NAME);
     }
 
+    /**
+     * Handles entering the field collapse state.
+     * Processes each column to move items down into empty spaces.
+     * @param context - The game context
+     */
     public async onEnter(context: GameContext): Promise<void> {
-        console.log(`[GameState] Entering ${GameCollapseField.STATE_NAME}`);
         const items = context.items;
         const height = items[0].length;
         const conf = context.lvlConf;
