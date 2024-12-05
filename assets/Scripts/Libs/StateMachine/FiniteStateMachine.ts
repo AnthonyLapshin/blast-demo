@@ -1,3 +1,4 @@
+import { IGameStateObserver } from '../../Game/GameSM/IGameStateObserver';
 import { IState } from './interfaces/IState';
 import { ITransition } from './interfaces/ITransition';
 
@@ -7,6 +8,21 @@ export class FiniteStateMachine<TContext> {
     private currentState: IState<TContext> | null = null;
     protected context: TContext;
 
+
+    private _stateObservers: Set<IGameStateObserver> = new Set();
+
+    public addStateObserver(observer: IGameStateObserver): void {
+        this._stateObservers.add(observer);
+    }
+
+    public removeStateObserver(observer: IGameStateObserver): void {
+        this._stateObservers.delete(observer);
+    }
+
+    private notifyGameStateChanged(newState: string): void {
+        this._stateObservers.forEach(observer => observer.onGameStateChanged(newState));
+    }
+    
     constructor(context: TContext) {
         this.context = context;
     }
@@ -59,6 +75,7 @@ export class FiniteStateMachine<TContext> {
         // Enter new state
         this.currentState = newState;
         await this.currentState.onEnter?.(this.context);
+        this.notifyGameStateChanged(stateName);
     }
 
     public getCurrentState(): string | null {

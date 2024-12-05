@@ -3,12 +3,16 @@ import { GameTool } from '../Game/EnumGameTool';
 import { GameContext } from '../Game/GameSM/GameContext';
 import { inject } from '../Libs/Injects/inject';
 import { IGameToolObserver } from '../Game/GameSM/IGameToolObserver';
+import { IPlayerInventoryObserver } from '../Services/IPlayerInventoryObserver';
+import { PlayerInventoryService } from '../Services/PlayerInventoryService';
+import { IPlayerInventoryService } from '../Services/IPlayerInventoryService';
 const { ccclass, property } = _decorator;
 
 @ccclass('ToggleButton')
-export class ToolToggleButton extends Component implements IGameToolObserver {
+export class ToolToggleButton extends Component implements IGameToolObserver, IPlayerInventoryObserver {
 
     private _gameContext: GameContext = inject(GameContext);
+    private _playerInventory: IPlayerInventoryService = inject(PlayerInventoryService);
 
     @property({type: Sprite, tooltip: 'Sprite to display when toggle is ON'})
     private onSprite: Sprite | null = null;
@@ -52,7 +56,6 @@ export class ToolToggleButton extends Component implements IGameToolObserver {
         this._isOn = newTool == this._tool;
         this.updateVisuals();
     }
-
     
     public get isOn(): boolean {
         return this._isOn;
@@ -72,6 +75,7 @@ export class ToolToggleButton extends Component implements IGameToolObserver {
 
     protected onLoad(): void {
         this._gameContext.addToolObserver(this);
+        this._playerInventory.addObserver(this);
         this.node.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
         this.updateVisuals();
     }
@@ -100,5 +104,11 @@ export class ToolToggleButton extends Component implements IGameToolObserver {
 
     private notifyToggleObservers(): void {
         EventHandler.emitEvents(this.onToggleChanged, this, this._isOn);
+    }
+
+    onInventoryChanged(tool: GameTool, amount: number): void {
+        if (tool == this._tool) {
+            this.setText(amount.toString());
+        }
     }
 }

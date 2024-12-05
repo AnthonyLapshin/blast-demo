@@ -1,20 +1,29 @@
-import { _decorator, Component, Label, ProgressBar } from 'cc';
+import { _decorator, Component, Label, ProgressBar, Node } from 'cc';
 import { GameContext } from '../Game/GameSM/GameContext';
 import { inject } from '../Libs/Injects/inject';
 import { IGameStatsObserver } from '../Game/GameSM/IGameStatsObserver';
 import { LevelConfigurationService } from '../Services/LevelConfiguration';
+import { GameStateMachine } from '../Game/GameSM/GameSM';
+import { IGameStateObserver } from '../Game/GameSM/IGameStateObserver';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('GameHUD')
-export class GameHUD extends Component implements IGameStatsObserver {
+export class GameHUD extends Component implements IGameStatsObserver, IGameStateObserver {
+
     @property(Label)
     private scoreLabel: Label = null;
     private _targetScore: number;
 
     @property(Label)
     private movesLabel: Label = null;
+
+    @property({type: Node, visible: true})
+    private gamveOverWindow: Node;
+
     private readonly _levelConfig: LevelConfigurationService = inject(LevelConfigurationService);
+    private readonly _sm: GameStateMachine = inject(GameStateMachine);
+    
     private readonly _context: GameContext = inject(GameContext);
 
     @property(ProgressBar)
@@ -23,6 +32,7 @@ export class GameHUD extends Component implements IGameStatsObserver {
     protected start(): void {
         // Register as observer
         this._context.addObserver(this);
+        this._sm.addStateObserver(this);
         this._targetScore = this._levelConfig.targetScore;
         
         // Initialize progress to 0
@@ -31,6 +41,12 @@ export class GameHUD extends Component implements IGameStatsObserver {
         // Initialize labels
         this.updateScore(this._context.gameScore);
         this.updateMoves(this._context.gameMoves);
+    }
+
+    onGameStateChanged(newState: string): void {
+       if (newState == 'GameOver') {
+            this.gamveOverWindow.active = true;
+       }
     }
 
     protected onDestroy(): void {

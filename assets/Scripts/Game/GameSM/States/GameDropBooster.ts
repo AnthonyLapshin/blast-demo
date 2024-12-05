@@ -7,6 +7,7 @@ import { ILevelConfigurationService } from "../../../Services/ILevelConfiguratio
 import { LevelConfigurationService } from "../../../Services/LevelConfiguration";
 import { SelectedItemData } from "../../Base/SelectedItemData";
 import { GameContext } from "../GameContext";
+import { GameTool } from "../../EnumGameTool";
 
 export class GameDropBooster extends BaseState<GameContext>{
     public static readonly STATE_NAME: string = 'GameDropBooster';
@@ -17,8 +18,10 @@ export class GameDropBooster extends BaseState<GameContext>{
     }
 
     public async onEnter(context: GameContext): Promise<void> {
-        
-        if(context.selectedItem.item.IsBooster) return;
+        console.log(`[GameState] Entering ${GameDropBooster.STATE_NAME}`);
+        console.log(`Current tool: ${context.currentTool}`);
+        if(context.selectedItem.item.IsBooster || context.currentTool != GameTool.SELECTOR) 
+            return;
         
         const clusterLength = context.currentCluster.length;
         const drops = this._lvlConf.drops;

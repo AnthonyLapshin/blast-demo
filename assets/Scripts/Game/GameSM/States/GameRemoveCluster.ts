@@ -38,7 +38,4 @@ export class GameRemoveCluster extends BaseState<GameContext>{
         //cleanup
         context.currentCluster = null;
     }
-
-    public async onExit(context: GameContext): Promise<void> {
-    }
 }

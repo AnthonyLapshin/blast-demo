@@ -1,5 +1,6 @@
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
 import { SelectedItemData } from "../../Base/SelectedItemData";
+import { GameTool } from "../../EnumGameTool";
 import { GameContext } from "../GameContext";
 
 export class GameIdle extends BaseState<GameContext>{
@@ -11,6 +12,7 @@ export class GameIdle extends BaseState<GameContext>{
 
     public async onEnter(context: GameContext): Promise<void> {
         console.log(`[GameState] Entering ${GameIdle.STATE_NAME}`);
+        context.currentTool = GameTool.SELECTOR
         context.gameNode.on(SelectedItemData.SELECTED_EVENT, this.onItemSelected, this);
         this._context = context;
     }
