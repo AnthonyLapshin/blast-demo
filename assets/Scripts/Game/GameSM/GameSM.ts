@@ -20,6 +20,10 @@ import { GameBombActivation } from "./States/GameBombActivation";
 import { GameDropBooster } from "./States/GameDropBooster";
 import { GameLandDrop } from "./States/GameLandDrop";
 import { NukeBombActivated } from "./States/Boosters/NukeBombActivated";
+import { Column1RocketActivated } from "./States/Boosters/Column1RocketActivated";
+import { Column2RocketActivated } from "./States/Boosters/Column2RocketActivated";
+import { Row1RocketActivated } from "./States/Boosters/Row1RocketActivated";
+import { Row2RocketActivated } from "./States/Boosters/Row2RocketActivated";
 
 @singleton()
 export class GameStateMachine extends FiniteStateMachine<GameContext> 
@@ -58,8 +62,10 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.addState(new GameDropBooster());
         this.addState(new GameLandDrop());
         this.addState(new NukeBombActivated());
-
-        
+        this.addState(new Column1RocketActivated());
+        this.addState(new Column2RocketActivated());
+        this.addState(new Row1RocketActivated());
+        this.addState(new Row2RocketActivated());        
     }
     
     // init -> IDLE
@@ -123,6 +129,76 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             from: NukeBombActivated.STATE_NAME,
             to: GameCalculateScore.STATE_NAME
         });
+
+
+        // IDLE -> Row Rocket 1
+        this.addTransition({
+            from: GameIdle.STATE_NAME,
+            to: Row1RocketActivated.STATE_NAME,
+            guardCondition: (context) => {
+                return context.selectedItem != null
+                && context.currentTool == GameTool.SELECTOR
+                && context.selectedItem.item.ItemType == GameTool.ROW_ROCKET_1;
+            },
+        });
+
+        // IDLE -> Row Rocket 2
+        this.addTransition({
+            from: GameIdle.STATE_NAME,
+            to: Row2RocketActivated.STATE_NAME,
+            guardCondition: (context) => {
+                return context.selectedItem != null
+                && context.currentTool == GameTool.SELECTOR
+                && context.selectedItem.item.ItemType == GameTool.ROW_ROCKET_2;
+            },
+        });
+
+        // IDLE -> Column Rocket 1
+        this.addTransition({
+            from: GameIdle.STATE_NAME,
+            to: Column1RocketActivated.STATE_NAME,
+            guardCondition: (context) => {
+                return context.selectedItem != null
+                && context.currentTool == GameTool.SELECTOR
+                && context.selectedItem.item.ItemType == GameTool.COL_ROCKET_1;
+            },
+        });
+
+        // IDLE -> Column Rocket 2
+        this.addTransition({
+            from: GameIdle.STATE_NAME,
+            to: Column2RocketActivated.STATE_NAME,
+            guardCondition: (context) => {
+                return context.selectedItem != null
+                && context.currentTool == GameTool.SELECTOR
+                && context.selectedItem.item.ItemType == GameTool.COL_ROCKET_2;
+            },
+        });
+
+        // Row Rocket 1 -> Calculation
+        this.addTransition({
+            from: Row1RocketActivated.STATE_NAME,
+            to: GameCalculateScore.STATE_NAME
+        });
+
+        // Row Rocket 2 -> Calculation
+        this.addTransition({
+            from: Row2RocketActivated.STATE_NAME,
+            to: GameCalculateScore.STATE_NAME
+        });
+
+        // Column Rocket 1 -> Calculation
+        this.addTransition({
+            from: Column1RocketActivated.STATE_NAME,
+            to: GameCalculateScore.STATE_NAME
+        });
+
+        // Column Rocket 2 -> Calculation
+        this.addTransition({
+            from: Column2RocketActivated.STATE_NAME,
+            to: GameCalculateScore.STATE_NAME
+        });
+
 
         // Bomb -> Calculation
         this.addTransition({

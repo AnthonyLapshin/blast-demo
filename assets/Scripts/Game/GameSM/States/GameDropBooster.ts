@@ -51,6 +51,9 @@ export class GameDropBooster extends BaseState<GameContext>{
                 }
                 dropItem = instantiate(dropPrefab).getComponent(GameFieldItem.COMPONENT_NAME) as GameFieldItem;
                 console.log(`!!--> [GameState] Instantiated drop item: ${dropItem.name}`);
+                dropItem.node.on(GameFieldItem.CLICKED_EVENT, (clickedItem: GameFieldItem) => {
+                    context.onClickedItemCb(clickedItem);
+                });
             }
         }
 
