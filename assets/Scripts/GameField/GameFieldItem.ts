@@ -41,8 +41,7 @@ export class GameFieldItem extends Component {
             
             // Check if click is within sprite bounds
             if (Math.abs(nodePos.x) <= size.width/2 && Math.abs(nodePos.y) <= size.height/2) {
-                console.log('Clicked item type:', this.ItemType);
-                this.node.emit( GameFieldItem.CLICKED_EVENT, this); 
+                this.node.emit(GameFieldItem.CLICKED_EVENT, this); 
             }
         }
     }

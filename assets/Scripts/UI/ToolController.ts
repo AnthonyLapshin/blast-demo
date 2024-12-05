@@ -10,13 +10,11 @@ export class ToolController extends Component {
     
     onBombClick() {
         this._gameContext.currentTool = 
-        this._gameContext.currentTool == GameTool.BOMB_1? GameTool.SELECTOR : GameTool.BOMB_1;
-        console.log(`Current tool: ${this._gameContext.currentTool}`);
+        this._gameContext.currentTool == GameTool.BOMB_1 ? GameTool.SELECTOR : GameTool.BOMB_1;
     }
 
     onBigBombClick() {
         this._gameContext.currentTool = 
         this._gameContext.currentTool == GameTool.BOMB_2 ? GameTool.SELECTOR : GameTool.BOMB_2;
-        console.log(`Current tool: ${this._gameContext.currentTool}`);
     }
 }

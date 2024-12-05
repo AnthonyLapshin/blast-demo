@@ -10,7 +10,6 @@ export class GameCalculateScore extends BaseState<GameContext> {
     }
 
     public async onEnter(context: GameContext): Promise<void> {
-        console.log(`[GameState] Entering ${GameCalculateScore.STATE_NAME}`);
         context.gameMoves ++;
         if (context.currentTool == GameTool.SELECTOR){ 
             const itemType: string = context.currentCluster[0].ItemType
@@ -21,8 +20,6 @@ export class GameCalculateScore extends BaseState<GameContext> {
                 context.gameScore += context.lvlConf.paytable[context.currentCluster[i].ItemType];
             }
         }
-        console.log(`[GameState] Game moves: ${context.gameMoves}`);
-        console.log(`[GameState] Points: ${context.gameScore}`);
     }
 
     public async onExit(context: GameContext): Promise<void> {

@@ -49,7 +49,6 @@ export class ToolToggleButton extends Component implements IGameToolObserver {
     }
 
     public onToolChanged(newTool: GameTool): void {
-        console.log(`[TOOL] Tool changed from ${this._tool} to ${newTool}`);
         this._isOn = newTool == this._tool;
         this.updateVisuals();
     }

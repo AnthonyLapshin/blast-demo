@@ -19,9 +19,7 @@ export class GameBombActivation extends BaseState<GameContext> {
 
     public async onEnter(context: GameContext): Promise<void> {
         
-        console.log(`[GameState] Entering ${GameBombActivation.STATE_NAME}`);
         if (this._inventory.getAmount(GameTool.BOMB_1) <= 0) {
-            console.error('Not enough bombs');
             return;
         }
 
@@ -29,7 +27,6 @@ export class GameBombActivation extends BaseState<GameContext> {
 
         const selectedItem = context.selectedItem;
         if (!selectedItem) {
-            console.error('No item selected for bomb activation');
             return;
         }
 
@@ -53,11 +50,8 @@ export class GameBombActivation extends BaseState<GameContext> {
         }
 
         context.currentCluster = cluster;
-        
-        console.log(`Bomb activated: Selected ${cluster.length} items`);
     }
 
     public async onExit(context: GameContext): Promise<void> {
-        console.log(`[GameState] Exiting ${GameBombActivation.STATE_NAME}`);
     }
 }

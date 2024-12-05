@@ -9,9 +9,11 @@ export class GameRemoveCluster extends BaseState<GameContext>{
     }
 
     public async onEnter(context: GameContext): Promise<void> {
-        console.log(`[GameState] Entering ${GameRemoveCluster.STATE_NAME}`);
-        
         const cluster = context.currentCluster;
+        if (!cluster || cluster.length === 0) {
+            return;
+        }
+
         const items = context.items;
         const pool = context.itemsPool;
         const dropsPool = context.dropsPool;
@@ -35,5 +37,8 @@ export class GameRemoveCluster extends BaseState<GameContext>{
         }
         //cleanup
         context.currentCluster = null;
+    }
+
+    public async onExit(context: GameContext): Promise<void> {
     }
 }

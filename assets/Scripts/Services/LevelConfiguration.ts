@@ -1,4 +1,3 @@
-import { GameTool } from "../Game/EnumGameTool";
 import { singleton } from "../Libs/Injects/decorators/singleton";
 import { ILevelConfigurationService } from "./ILevelConfiguration";
 
@@ -44,8 +43,6 @@ export class LevelConfigurationService implements ILevelConfigurationService {
     public get bombRadius(): Record<string, number> {
         return this._bombRadius;
     }
-
-
 
     public get maxMoves(): number{
         return this._maxMoves;
