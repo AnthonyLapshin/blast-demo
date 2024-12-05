@@ -1,5 +1,4 @@
-import { _decorator, Component, Vec3, tween, Node, EventTouch, UITransform, CCString } from "cc";
-import { SelectedItemData } from "../Game/Base/SelectedItemData";
+import { _decorator, Component, Vec3, tween, Node, EventTouch, UITransform, CCString, CCBoolean } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass('GameFieldItem')
@@ -9,7 +8,9 @@ export class GameFieldItem extends Component {
     
     @property({type: CCString})
     public ItemType: string = "";
-
+    @property({type: CCBoolean})
+    public IsBooster: boolean = false;
+    
     private _isInteractable: boolean = true;
 
     public async moveToPosition(x: number, y: number, duration: number, delay: number = 0): Promise<void> {

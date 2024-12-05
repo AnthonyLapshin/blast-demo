@@ -9,4 +9,5 @@ export interface ILevelConfigurationService {
     get maxMoves(): number;
     get targetScore(): number;
     get bombRadius(): Record<string, number>;
+    get drops(): Record<number, string[]> ;
 }

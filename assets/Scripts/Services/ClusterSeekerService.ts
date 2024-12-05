@@ -26,21 +26,18 @@ export class ClusterSeekerService implements IClusterSeekerService {
     public FindAllClusters(items: GameFieldItem[][], minClusterSize: number, propertyName: string): GameFieldItem[][] {
         const allClusters: GameFieldItem[][] = [];
         const visited: boolean[][] = Array(items.length).fill(null).map(() => Array(items[0].length).fill(false));
-
-        console.log(`Starting cluster search with grid ${items.length}x${items[0].length}`);
-        
         for (let i = 0; i < items.length; i++) {
             for (let j = 0; j < items[i].length; j++) {
                 if (!visited[i][j] && items[i][j]) {
+                    if (items[i][j].IsBooster){
+                        allClusters.push([items[i][j]]);
+                        continue;
+                    }
                     const targetValue = items[i][j].ItemType;
-                    console.log(`Checking position [${i},${j}] with ItemType=${targetValue}`);
-                    
-                    const cluster = this.findCluster(items, visited, i, j, targetValue);
-                    console.log(`Found cluster of size ${cluster.length} at [${i},${j}]`);
-                    
+                    const cluster = this.findCluster(items, visited, i, j, targetValue);                    
                     if (cluster.length >= minClusterSize) {
                         allClusters.push(cluster);
-                        console.log(`Added cluster. Total clusters: ${allClusters.length}`);
+
                     }
                 }
             }
@@ -59,8 +56,6 @@ export class ClusterSeekerService implements IClusterSeekerService {
         const cluster: GameFieldItem[] = [];
         const queue: [number, number][] = [[x, y]];
         
-        console.log(`Finding cluster at [${x},${y}] with target ItemType=${targetValue}`);
-
         while (queue.length > 0) {
             const [currentX, currentY] = queue.shift()!;
 
@@ -76,7 +71,6 @@ export class ClusterSeekerService implements IClusterSeekerService {
 
             visited[currentX][currentY] = true;
             cluster.push(items[currentX][currentY]);
-            console.log(`Added [${currentX},${currentY}] to cluster. Current size: ${cluster.length}`);
 
             const directions = [[0, 1], [1, 0], [0, -1], [-1, 0]];
             for (const [dx, dy] of directions) {
@@ -90,7 +84,6 @@ export class ClusterSeekerService implements IClusterSeekerService {
                     items[newX][newY].ItemType === targetValue
                 ) {
                     queue.push([newX, newY]);
-                    console.log(`Added [${newX},${newY}] to queue for checking`);
                 }
             }
         }

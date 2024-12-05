@@ -14,20 +14,38 @@ export class LevelConfigurationService implements ILevelConfigurationService {
         "GreenItem": 20,
         "PurpleItem": 30,
         "RedItem": 40,
-        "YellowItem": 50
+        "YellowItem": 50,
+        // Boosters
+        "COL_ROCKET_1": 60,
+        "ROW_ROCKET_1": 60,
+        "COL_ROCKET_2": 60,
+        "ROW_ROCKET_2": 60,
+        "NUKE_BOMB": 100
     };
+
+    private readonly _drops: Record<number, string[]> = {
+        6: ["COL_ROCKET_1", "ROW_ROCKET_1"],
+        7: ["COL_ROCKET_2", "ROW_ROCKET_2"],
+        8: ["NUKE_BOMB"],
+    };
+
+    private readonly _maxMoves: number = 15;
+    private readonly _targetScore: number = 15500;
 
     private readonly _bombRadius: Record<string, number> = {
         "BOMB_1": 1,
         "BOMB_2": 2,
     };
-    
+
+    public get drops(): Record<number, string[]> {
+        return this._drops;
+    }
+
     public get bombRadius(): Record<string, number> {
         return this._bombRadius;
     }
 
-    private readonly _maxMoves: number = 15;
-    private readonly _targetScore: number = 15500;
+
 
     public get maxMoves(): number{
         return this._maxMoves;

@@ -17,6 +17,9 @@ import { GameOver } from "./States/GameOver";
 import { GameCalculateScore } from "./States/GameCalculateScore";
 import { GameTool } from "../EnumGameTool";
 import { GameBombActivation } from "./States/GameBombActivation";
+import { GameDropBooster } from "./States/GameDropBooster";
+import { GameLandDrop } from "./States/GameLandDrop";
+import { NukeBombActivated } from "./States/Boosters/NukeBombActivated";
 
 @singleton()
 export class GameStateMachine extends FiniteStateMachine<GameContext> 
@@ -33,6 +36,13 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.context.itemPrefabs = items;
     }
 
+    public setDrops(items: Prefab[]): void {
+        if(this.context.dropPrefabs != null){
+            throw new Error('Drops already set');
+        }
+        this.context.dropPrefabs = items;
+    }
+
     private async setupStates() : Promise<void> {
         this.addState(new GameFillField());
         this.addState(new GameIdle());
@@ -45,6 +55,11 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         this.addState(new GameOver());
         this.addState(new GameCalculateScore());
         this.addState(new GameBombActivation());
+        this.addState(new GameDropBooster());
+        this.addState(new GameLandDrop());
+        this.addState(new NukeBombActivated());
+
+        
     }
     
     // init -> IDLE
@@ -76,7 +91,8 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             to: GameSearchCluster.STATE_NAME,
             guardCondition: (context) => {
                 return context.selectedItem != null
-                && context.currentTool == GameTool.SELECTOR;
+                && context.currentTool == GameTool.SELECTOR
+                && !context.selectedItem.item.IsBooster;
             },
         });
 
@@ -89,6 +105,23 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
                 && (context.currentTool == GameTool.BOMB_1 
                 || context.currentTool == GameTool.BOMB_2);
             },
+        });
+
+        // IDLE -> Nuke Bomb
+        this.addTransition({
+            from: GameIdle.STATE_NAME,
+            to: NukeBombActivated.STATE_NAME,
+            guardCondition: (context) => {
+                return context.selectedItem != null
+                && context.currentTool == GameTool.SELECTOR
+                && context.selectedItem.item.ItemType == GameTool.NUKE_BOMB;
+            },
+        });
+
+        // Bomb -> Calculation
+        this.addTransition({
+            from: NukeBombActivated.STATE_NAME,
+            to: GameCalculateScore.STATE_NAME
         });
 
         // Bomb -> Calculation
@@ -127,8 +160,14 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
         // Calculate score -> Remove cluster
         this.addTransition({
             from: GameCalculateScore.STATE_NAME,
-            to: GameRemoveCluster.STATE_NAME
+            to: GameDropBooster.STATE_NAME
         });
+
+        // Calculate score -> Remove cluster
+        this.addTransition({
+            from: GameDropBooster.STATE_NAME,
+            to: GameRemoveCluster.STATE_NAME
+        });        
 
         // Remove cluster -> Collapse
         this.addTransition({
@@ -153,8 +192,25 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
             from: GameRefillGrid.STATE_NAME,
             to: GameCollectAllClusters.STATE_NAME,
             guardCondition: (context) => {
-                return context.isMovingItems == false;
+                return context.isMovingItems == false
+                && context.droppedItems.length == 0;
             },
+        });
+
+         // Refill -> Drop
+         this.addTransition({
+            from: GameRefillGrid.STATE_NAME,
+            to: GameLandDrop.STATE_NAME,
+            guardCondition: (context) => {
+                return context.isMovingItems == false
+                && context.droppedItems.length != 0;
+            },
+        });
+
+        // Drop -> Collect
+        this.addTransition({
+            from: GameLandDrop.STATE_NAME,
+            to: GameCollectAllClusters.STATE_NAME
         });
 
         // Collect -> Reshuffle
@@ -230,7 +286,6 @@ export class GameStateMachine extends FiniteStateMachine<GameContext>
                     var data = new SelectedItemData();
                     data.position = new Vec2(i, j);
                     data.item = clickedItem;
-                    console.log("!>> ", this.context.gameNode.hasEventListener(SelectedItemData.SELECTED_EVENT));
                     this.context.gameNode.emit(SelectedItemData.SELECTED_EVENT, data);
                 }
             }

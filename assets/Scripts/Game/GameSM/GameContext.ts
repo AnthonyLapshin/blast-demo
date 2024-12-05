@@ -16,15 +16,20 @@ import { GameTool } from "../EnumGameTool";
 export class GameContext implements IGameContext {
 
     private _itemPrefabs: Prefab[] = null;
+    private _dropPrefabs: Prefab[] = null;
+    
     private _itemsPool: GameFieldItem[] = [];
     private _items: GameFieldItem[][] = [];
-
+    private _dropsPool: GameFieldItem[] = [];
+    
     private _gameNode: Node = null;
 
     private readonly _lvlConf: ILevelConfigurationService = inject(LevelConfigurationService);
     private readonly _gameConf: IGameConfigurationService = inject(GameConfigurationService);
 
     private _selectedItem: SelectedItemData = null;
+    private _droppedItems: SelectedItemData[] = [];
+    
     private _currentCluster: GameFieldItem[] = null;
 
     private _isMovingItems: boolean = false;
@@ -58,6 +63,29 @@ export class GameContext implements IGameContext {
         this._observers.forEach(observer => observer.onMovesChanged(newMoves));
     }
     // ========================= Getters & Setters =========================
+
+    public get dropPrefabs(): Prefab[] {
+        return this._dropPrefabs;
+    }
+    
+    public set dropPrefabs(value: Prefab[]) {
+        this._dropPrefabs = value;
+    }
+
+    public get dropsPool(): GameFieldItem[] {
+        return this._dropsPool;
+    }
+    public set dropsPool(value: GameFieldItem[]) {
+        this._dropsPool = value;
+    }
+
+    public get droppedItems(): SelectedItemData[] {
+        return this._droppedItems;
+    }
+
+    public set droppedItems(value: SelectedItemData[]) {
+        this._droppedItems = value;
+    }
 
     public get currentTool(): GameTool {
         return this._currentTool;

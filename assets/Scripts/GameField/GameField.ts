@@ -11,6 +11,9 @@ export class GameField extends Component {
 
     @property({ type: [Prefab] })
     public itemPrefabs: Prefab[] = [];
+
+    @property({ type: [Prefab] })
+    public dropPrefabs: Prefab[] = [];
     
     @property({ type: Node })
     public targetNode: Node = null;
@@ -36,6 +39,8 @@ export class GameField extends Component {
 
     protected async start(): Promise<void> {
         this._stateMachine.setItems(this.itemPrefabs);
+        this._stateMachine.setDrops(this.dropPrefabs);
+
         if (this.targetNode != null) {
             await this._stateMachine.bind(this.targetNode);
             await this._uiService.resetSize([this.targetNode], null);

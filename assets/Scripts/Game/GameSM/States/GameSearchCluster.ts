@@ -17,7 +17,11 @@ export class GameSearchCluster extends BaseState<GameContext>{
         const conf = context.gameConf;
         const item = context.selectedItem;
         const items = context.items;
-
+        // If it's booster then we just need to set the cluster and return
+        if (item.item.IsBooster){
+            context.currentCluster = [item.item];
+            return;
+        }
         const cluster = this._clusterSeeker.CollectCluster(items, conf.minClusterSize, item.position.x, item.position.y, 'ItemType');
 
         if (cluster.length >= conf.minClusterSize) {
@@ -25,7 +29,7 @@ export class GameSearchCluster extends BaseState<GameContext>{
             context.currentCluster = cluster;
         }else{
             console.log('Clusters with minimum size not found. Currtent cluster length: ', cluster.length);
+            context.selectedItem = null;
         }
-        context.selectedItem = null;
     }
 }

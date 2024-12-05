@@ -2678,6 +2678,28 @@
         "__expectedType__": "cc.Prefab"
       }
     ],
+    "dropPrefabs": [
+      {
+        "__uuid__": "6953cfa9-5c92-470d-be74-5af7fe441ff9",
+        "__expectedType__": "cc.Prefab"
+      },
+      {
+        "__uuid__": "68a9a909-e528-48a8-9ff2-843d47c04c90",
+        "__expectedType__": "cc.Prefab"
+      },
+      {
+        "__uuid__": "75516265-badb-47f1-96b3-fe7c4969dd8a",
+        "__expectedType__": "cc.Prefab"
+      },
+      {
+        "__uuid__": "5fc5089f-b702-4c46-97d4-71d2c8499923",
+        "__expectedType__": "cc.Prefab"
+      },
+      {
+        "__uuid__": "c71d0391-d7fe-4246-9112-2611e9773051",
+        "__expectedType__": "cc.Prefab"
+      }
+    ],
     "targetNode": {
       "__id__": 11
     },

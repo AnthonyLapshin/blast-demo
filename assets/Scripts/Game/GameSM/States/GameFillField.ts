@@ -1,4 +1,4 @@
-import { instantiate } from "cc";
+import { instantiate, Prefab } from "cc";
 import { GameFieldItem } from "../../../GameField/GameFieldItem";
 import { BaseState } from "../../../Libs/StateMachine/BaseState";
 import { ArrayUtils } from "../../../Libs/utils/ArrayUtils";
@@ -39,7 +39,17 @@ export class GameFillField extends BaseState<GameContext>{
 
                 items[i][j] = item;
             }
-        }        
+        }
+
+        //add boosters
+        for (let i = 0; i < context.dropPrefabs.length; i++) {
+            const item = instantiate(context.dropPrefabs[i]);
+            var itemComponent = item.getComponent(GameFieldItem.COMPONENT_NAME) as GameFieldItem;
+            item.on(GameFieldItem.CLICKED_EVENT, (clickedItem: GameFieldItem) => {
+                context.onClickedItemCb(clickedItem);
+            });
+            context.dropsPool.push(itemComponent);
+        }
         
         ///reshiffle in the beginning
         context.remainClusters = this._clusterSeeker.FindAllClusters(items, gameConf.minClusterSize, GameFieldItem.COMPONENT_NAME);
@@ -60,6 +70,7 @@ export class GameFillField extends BaseState<GameContext>{
             }  
         }
     }
+
 
     private createItem(context: GameContext, subscribeClickEvents: boolean = true):GameFieldItem{
         const item = instantiate((ArrayUtils.getRandomItem(context.itemPrefabs)));

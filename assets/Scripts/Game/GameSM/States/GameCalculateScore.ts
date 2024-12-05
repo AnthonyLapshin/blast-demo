@@ -27,6 +27,5 @@ export class GameCalculateScore extends BaseState<GameContext> {
 
     public async onExit(context: GameContext): Promise<void> {
         context.currentTool = GameTool.SELECTOR;
-        context.selectedItem = null;
     }
 }

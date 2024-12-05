@@ -39,4 +39,10 @@ export interface IGameContext {
 
     get isMovingItems(): boolean;
     set isMovingItems(value: boolean);
+
+    get dropsPool(): GameFieldItem[];
+    set dropsPool(value: GameFieldItem[]);
+
+    get dropPrefabs(): Prefab[];
+    set dropPrefabs(value: Prefab[]);
 }

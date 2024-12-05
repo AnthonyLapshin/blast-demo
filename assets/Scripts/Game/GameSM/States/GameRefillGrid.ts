@@ -27,6 +27,7 @@ export class GameRefillGrid extends BaseState<GameContext>{
         for (let i = 0; i < lvlConf.width; i++) {
             for (let j = 0; j < lvlConf.height; j++) {
                 if (!items[i][j]) {
+                    // const dropItem = this.getDropItem(context, i, j);
                     const item = ArrayUtils.getRandomItem(itemPool) as GameFieldItem;
                     ArrayUtils.removeItem(itemPool, item);
                     items[i][j] = item;
@@ -37,7 +38,7 @@ export class GameRefillGrid extends BaseState<GameContext>{
 
                     rootNode.addChild(item.node);
                      // Track the movement
-                     movingItems.push(item.moveToPosition(cords.x, cords.y, 0.1, i * 0.08));
+                    movingItems.push(item.moveToPosition(cords.x, cords.y, 0.1, i * 0.08));
                 }
             }
         }

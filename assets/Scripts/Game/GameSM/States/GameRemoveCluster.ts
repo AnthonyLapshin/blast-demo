@@ -14,6 +14,7 @@ export class GameRemoveCluster extends BaseState<GameContext>{
         const cluster = context.currentCluster;
         const items = context.items;
         const pool = context.itemsPool;
+        const dropsPool = context.dropsPool;
 
         for (const item of cluster) {
             const index = items.findIndex(row => row.indexOf(item) !== -1);
@@ -24,7 +25,11 @@ export class GameRemoveCluster extends BaseState<GameContext>{
                     items[index][columnIndex] = null;
                     // Remove the item from the scene and add to pool
                     item.node.removeFromParent();
-                    pool.push(item);
+                    if (item.IsBooster) {
+                        dropsPool.push(item);
+                    }else{
+                        pool.push(item);
+                    }
                 }
             }
         }
