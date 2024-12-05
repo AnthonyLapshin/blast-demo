@@ -10,6 +10,7 @@ import { ILevelConfigurationService } from "../../Services/ILevelConfiguration";
 import { SelectedItemData } from "../Base/SelectedItemData";
 import { IGameStatsObserver } from "./IGameStatsObserver";
 import { GameTool } from "../EnumGameTool";
+import { IGameToolObserver } from "./IGameToolObserver";
 
 @singleton()
 
@@ -46,6 +47,15 @@ export class GameContext implements IGameContext {
     
     // observers
     private _observers: Set<IGameStatsObserver> = new Set();
+    private _toolObservers: Set<IGameToolObserver> = new Set();
+
+    public addToolObserver(observer: IGameToolObserver): void {
+        this._toolObservers.add(observer);
+    }
+
+    public removeToolObserver(observer: IGameToolObserver): void {
+        this._toolObservers.delete(observer);
+    }
 
     public addObserver(observer: IGameStatsObserver): void {
         this._observers.add(observer);
@@ -61,6 +71,10 @@ export class GameContext implements IGameContext {
 
     private notifyMovesChanged(newMoves: number): void {
         this._observers.forEach(observer => observer.onMovesChanged(newMoves));
+    }
+
+    private notifyToolChanged(newTool: GameTool): void {
+        this._toolObservers.forEach(observer => observer.onToolChanged(newTool));
     }
     // ========================= Getters & Setters =========================
 
@@ -91,7 +105,10 @@ export class GameContext implements IGameContext {
         return this._currentTool;
     }
     public set currentTool(value: GameTool) {
-        this._currentTool = value;
+        if (this._currentTool != value){
+            this._currentTool = value;
+            this.notifyToolChanged(value);
+        }
     }
 
     public get outOfMoves(): boolean {

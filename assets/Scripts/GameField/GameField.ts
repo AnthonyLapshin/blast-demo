@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, UITransform, Node, Vec2, Vec3, Size} from "cc";
+import { _decorator, Component, Prefab, UITransform, Node, Vec2, Vec3, Size, CCFloat} from "cc";
 import { inject } from "../Libs/Injects/inject";
 import { GameStateMachine } from "../Game/GameSM/GameSM";
 import { IUIService } from "../Services/IUIService";
@@ -24,7 +24,7 @@ export class GameField extends Component {
     @property({ type: Node })
     public maskTarget: Node = null;
 
-    @property({ type: Number})
+    @property({ type: CCFloat})
     public scaleTargetsPadding: Number = 0;
 
     @property({ type: Paddings, visible: true, serializable: true })
