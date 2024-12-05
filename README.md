@@ -74,24 +74,32 @@ stateDiagram-v2
 
 ## State Descriptions
 
-1. **GameFillField**: Initializes the game board with items
-2. **GameIdle**: Main state waiting for player input
-3. **GameSearchCluster**: Looks for matching clusters after item selection
-4. **GameRemoveCluster**: Removes matched clusters from the board
-5. **GameCalculateScore**: Updates player score based on removed items
-6. **GameCollapseField**: Makes items fall to fill empty spaces
-7. **GameRefillGrid**: Adds new items to empty spaces
-8. **GameCollectAllClusters**: Scans board for all possible moves
-9. **GameReshuffleField**: Reorganizes board when no moves are available
-10. **GameDropBooster**: Handles booster placement
-11. **GameLandDrop**: Processes booster landing and activation
+1. **GameFillField**: Initializes the game board with items and sets up initial game state
+2. **GameIdle**: Main state waiting for player input, handles tool selection and item clicks
+3. **GameSearchCluster**: Looks for matching clusters after item selection, validates cluster size
+4. **GameRemoveCluster**: Removes matched clusters from the board and triggers special item creation
+5. **GameCalculateScore**: Updates player score based on removed items and cluster size
+6. **GameCollapseField**: Makes items fall to fill empty spaces after cluster removal
+7. **GameRefillGrid**: Adds new items to empty spaces at the top of the grid
+8. **GameCollectAllClusters**: Scans board for all possible moves, triggers reshuffle if none found
+9. **GameReshuffleField**: Reorganizes board when no moves are available (max 3 times)
+10. **GameDropBooster**: Handles booster placement and activation conditions
+11. **GameLandDrop**: Processes booster landing and activation after placement
+12. **GameOver**: Handles game end conditions and cleanup
 
 ### Booster States
-- **NukeBombActivated**: Handles nuke bomb explosion, affecting a large area
-- **Row1RocketActivated**: Clears all items in the selected row
-- **Row2RocketActivated**: Clears selected row and one row above and below
-- **Column1RocketActivated**: Clears all items in the selected column
-- **Column2RocketActivated**: Clears selected column and one column on each side
+- **NukeBombActivated**: Activates when 8+ items matched, affects a 5x5 area around selected point
+- **Row1RocketActivated**: Activates when 6 items matched, clears entire selected row
+- **Row2RocketActivated**: Activates when 7 items matched, clears selected row plus one above and below
+- **Column1RocketActivated**: Activates when 6 items matched, clears entire selected column
+- **Column2RocketActivated**: Activates when 7 items matched, clears selected column plus adjacent columns
+
+### State Skip Conditions
+- **GameSearchCluster → GameIdle**: Skips if no valid cluster found
+- **GameCollectAllClusters → GameIdle**: Skips if board is playable
+- **GameCollectAllClusters → GameReshuffleField**: Skips if no valid moves available
+- **GameDropBooster → GameLandDrop**: Skips if booster placement is invalid
+- **GameOver → GameIdle**: Skips if game can continue
 
 ## Game Features
 
