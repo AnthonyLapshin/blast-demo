@@ -7,9 +7,19 @@ A blast style puzzle game, featuring a robust state machine architecture and spe
 This is a grid-based puzzle game where players need to match clusters of similar items to score points. The game features various special items (boosters) that can help clear the board in different ways:
 
 - **Rockets**: Clear entire rows or columns
-  - Row Rocket (1 & 2)
-  - Column Rocket (1 & 2)
+  - Row Rocket 1: Clears entire selected row
+  - Row Rocket 2: Clears selected row and adjacent rows
+  - Column Rocket 1: Clears entire selected column
+  - Column Rocket 2: Clears selected column and adjacent columns
 - **Nuke Bomb**: Powerful booster that affects a large area
+
+### Game Rules
+- Minimum cluster size: 4 items
+- Special items appear at:
+  - 6 items: Row/Column Rocket 1
+  - 7 items: Row/Column Rocket 2
+  - 8 items: Nuke Bomb
+- Maximum reshuffles: 3
 
 ## Technical Architecture
 
@@ -32,6 +42,11 @@ stateDiagram-v2
     
     GameIdle --> GameSearchCluster: Item Clicked
     GameIdle --> GameDropBooster: Booster Selected
+    GameIdle --> Row1RocketActivated: Row1 Rocket Clicked
+    GameIdle --> Row2RocketActivated: Row2 Rocket Clicked
+    GameIdle --> Column1RocketActivated: Column1 Rocket Clicked
+    GameIdle --> Column2RocketActivated: Column2 Rocket Clicked
+    GameIdle --> NukeBombActivated: Nuke Bomb Clicked
     
     GameSearchCluster --> GameRemoveCluster: Cluster Found
     GameSearchCluster --> GameIdle: No Cluster
@@ -50,16 +65,11 @@ stateDiagram-v2
     GameDropBooster --> GameLandDrop
     GameLandDrop --> GameCalculateScore
     
-    state Boosters {
-        [*] --> NukeBombActivated
-        [*] --> Row1RocketActivated
-        [*] --> Row2RocketActivated
-        [*] --> Column1RocketActivated
-        [*] --> Column2RocketActivated
-    }
-    
-    GameLandDrop --> Boosters: Booster Activated
-    Boosters --> GameCalculateScore
+    Row1RocketActivated --> GameCalculateScore
+    Row2RocketActivated --> GameCalculateScore
+    Column1RocketActivated --> GameCalculateScore
+    Column2RocketActivated --> GameCalculateScore
+    NukeBombActivated --> GameCalculateScore
 ```
 
 ## State Descriptions
@@ -77,11 +87,11 @@ stateDiagram-v2
 11. **GameLandDrop**: Processes booster landing and activation
 
 ### Booster States
-- **NukeBombActivated**: Handles nuke bomb explosion
-- **Row1RocketActivated**: Processes single row rocket
-- **Row2RocketActivated**: Processes double row rocket
-- **Column1RocketActivated**: Processes single column rocket
-- **Column2RocketActivated**: Processes double column rocket
+- **NukeBombActivated**: Handles nuke bomb explosion, affecting a large area
+- **Row1RocketActivated**: Clears all items in the selected row
+- **Row2RocketActivated**: Clears selected row and one row above and below
+- **Column1RocketActivated**: Clears all items in the selected column
+- **Column2RocketActivated**: Clears selected column and one column on each side
 
 ## Game Features
 
@@ -122,4 +132,3 @@ assets/
 │   ├── GameField/      # Field Management
 │   └── Libs/          # Core Libraries
 └── Scenes/            # Game Scenes
-```
