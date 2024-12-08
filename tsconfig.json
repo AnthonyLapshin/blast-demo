@@ -6,6 +6,8 @@
   "compilerOptions": {
     "strict": false,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "types": ["jest", "node"]
   }
 }
