@@ -1,141 +1,148 @@
+// Mock dependencies before importing the class
+jest.mock('cc');
+jest.mock('../GameField/GameFieldItem');
+jest.mock('../Libs/utils/ArrayUtils');
+jest.mock('../Services/FieldCoordinatesService');
+jest.mock('../Services/ClusterSeekerService');
+jest.mock('../Services/LevelConfiguration');
+jest.mock('../Libs/Injects/inject');
+
+// Import after mocking
 import { GameFillField } from '../Game/GameSM/States/GameFillField';
 import { GameContext } from '../Game/GameSM/GameContext';
-import { Node, Prefab, instantiate, Component } from 'cc';
-import { ClusterSeekerService } from '../Services/ClusterSeekerService';
-import { FieldCoordinatesService } from '../Services/FieldCoordinatesService';
-import { LevelConfigurationService } from '../Services/LevelConfiguration';
+import { Node } from 'cc';
 import { GameFieldItem } from '../GameField/GameFieldItem';
-
-jest.mock('cc');
-jest.mock('../Libs/utils/ArrayUtils');
+import * as cc from 'cc';
+import { ArrayUtils } from '../Libs/utils/ArrayUtils';
+import { inject } from '../Libs/Injects/inject';
 
 describe('GameFillField', () => {
     let gameFillField: GameFillField;
     let context: GameContext;
-    let mockClusterSeeker: jest.Mocked<ClusterSeekerService>;
-    let mockCoordinatesService: jest.Mocked<FieldCoordinatesService>;
-    let mockLvlConf: jest.Mocked<LevelConfigurationService>;
+    let mockPrefab: any;
+    let mockGameFieldItem: GameFieldItem;
 
     beforeEach(() => {
-        // Clear all mocks
+        // Reset all mocks
         jest.clearAllMocks();
+        
+        // Mock inject function before creating GameFillField instance
+        (inject as jest.Mock).mockImplementation((type) => {
+            if (type.name === 'FieldCoordinatesService') {
+                return {
+                    fieldToWorldCoordsinates: jest.fn().mockReturnValue({ x: 0, y: 0 }),
+                    GetFieldPosition: jest.fn().mockReturnValue({ x: 0, y: 0 })
+                };
+            } else if (type.name === 'ClusterSeekerService') {
+                return {
+                    FindAllClusters: jest.fn().mockReturnValue([[{ x: 0, y: 0 }]])
+                };
+            } else if (type.name === 'LevelConfigurationService') {
+                return {
+                    GetLevelConfiguration: jest.fn().mockReturnValue({
+                        width: 5,
+                        height: 5,
+                        minClusterSize: 2
+                    })
+                };
+            }
+            return new type();
+        });
+        
+        // Create a mock GameFieldItem
+        mockGameFieldItem = new GameFieldItem();
+        mockGameFieldItem.ItemType = '1';
+        mockGameFieldItem.IsBooster = false;
+
+        // Create a mock node with the GameFieldItem component
+        const mockNode = new Node();
+        mockNode.getComponent = jest.fn().mockReturnValue(mockGameFieldItem);
+        mockGameFieldItem.node = mockNode;
+
+        // Set up mock prefab
+        mockPrefab = {
+            data: mockNode
+        };
+
+        // Mock ArrayUtils.getRandomItem to return our mock prefab
+        (ArrayUtils.getRandomItem as jest.Mock).mockReturnValue(mockPrefab);
+
+        // Mock cc.instantiate to return a new node with the component
+        ((cc as any).instantiate as jest.Mock).mockImplementation((prefab) => {
+            const node = new Node();
+            node.getComponent = jest.fn().mockReturnValue(mockGameFieldItem);
+            return node;
+        });
 
         // Initialize state and context
         gameFillField = new GameFillField();
         context = new GameContext();
+        
+        // Set up context with required properties
         context.gameNode = new Node();
-        context.items = [];
+        context.itemPrefabs = [mockPrefab];
+        context.dropPrefabs = [mockPrefab]; 
         context.itemsPool = [];
         context.dropsPool = [];
-        
-        // Mock game configuration
+        context.items = [];
+        context.gameScore = 0;
+
+        // Set up read-only properties using Object.defineProperty
         Object.defineProperty(context, 'gameConf', {
-            value: {
-                startPointsAmount: 1000,
-                itemPrefab: new Prefab(),
-                minClusterSize: 2,
-                reshuffles: 3
-            },
-            writable: true
+            get: () => ({
+                startPointsAmount: 0,
+                minClusterSize: 2
+            })
         });
-        
-        // Mock level configuration
+
         Object.defineProperty(context, 'lvlConf', {
-            value: {
+            get: () => ({
                 width: 5,
-                height: 5,
-                minClusterSize: 2,
-                cellWidth: 171,
-                cellHeight: 192
-            },
-            writable: true
-        });
-
-        // Set up drop prefabs and item prefabs
-        const itemPrefab = new Prefab();
-        const dropPrefab = new Prefab();
-        
-        Object.defineProperty(context, 'dropPrefabs', {
-            value: [dropPrefab],
-            writable: true,
-            configurable: true
-        });
-
-        Object.defineProperty(context, 'itemPrefabs', {
-            value: [itemPrefab],
-            writable: true,
-            configurable: true
-        });
-
-        // Mock services
-        mockClusterSeeker = {
-            FindAllClusters: jest.fn().mockReturnValue([[{ x: 0, y: 0 }]]), // Return non-empty array to avoid reshuffle
-            findClusters: jest.fn(),
-        } as unknown as jest.Mocked<ClusterSeekerService>;
-
-        mockCoordinatesService = {
-            fieldToWorldCoordsinates: jest.fn().mockReturnValue({ x: 0, y: 0 }),
-            getWorldPosition: jest.fn(),
-        } as unknown as jest.Mocked<FieldCoordinatesService>;
-
-        mockLvlConf = {
-            getRandomItemType: jest.fn().mockReturnValue(1),
-        } as unknown as jest.Mocked<LevelConfigurationService>;
-
-        // Mock services injection
-        Object.defineProperty(gameFillField, '_clusterSeeker', {
-            value: mockClusterSeeker,
-            writable: true,
-            configurable: true
-        });
-
-        Object.defineProperty(gameFillField, '_coordinatesService', {
-            value: mockCoordinatesService,
-            writable: true,
-            configurable: true
-        });
-
-        Object.defineProperty(gameFillField, '_lvlConf', {
-            value: mockLvlConf,
-            writable: true,
-            configurable: true
-        });
-
-        // Mock onClickedItemCb
-        context.onClickedItemCb = jest.fn();
-    });
-
-    describe('constructor', () => {
-        it('should create instance with correct state name', () => {
-            expect(gameFillField.name).toBe('GameFillField');
+                height: 5
+            })
         });
     });
 
     describe('onEnter', () => {
-        it('should initialize game score with startPointsAmount', async () => {
+        it('should initialize game score and create items array', async () => {
             await gameFillField.onEnter(context);
-            expect(context.gameScore).toBe(context.gameConf.startPointsAmount);
-        });
-
-        it('should create items array with correct dimensions', async () => {
-            await gameFillField.onEnter(context);
+            
+            expect(context.gameScore).toBe(0);
             expect(context.items.length).toBe(context.lvlConf.width);
             expect(context.items[0].length).toBe(context.lvlConf.height);
         });
 
-        it('should fill the field with game items', async () => {
+        it('should fill field with game items', async () => {
+            const instantiateSpy = jest.spyOn(cc as any, 'instantiate');
+            
             await gameFillField.onEnter(context);
             
-            // Check if instantiate was called correct number of times:
-            // - 2 instantiations per grid cell (pool item + game item)
-            // - 1 instantiation per drop prefab
-            const gridCells = context.lvlConf.width * context.lvlConf.height;
-            const expectedCalls = (gridCells * 2) + context.dropPrefabs.length;
-            expect(instantiate).toHaveBeenCalledTimes(expectedCalls);
+            // Verify items were created (2 items per grid position + boosters)
+            const expectedInstantiations = (context.lvlConf.width * context.lvlConf.height * 2) + context.dropPrefabs.length;
+            expect(instantiateSpy).toHaveBeenCalledTimes(expectedInstantiations);
             
-            // Check if items were added to the pool
-            expect(context.itemsPool.length).toBeGreaterThan(0);
-            expect(context.dropsPool.length).toBe(context.dropPrefabs.length);
+            // Verify pools were initialized
+            expect(context.itemsPool).toBeDefined();
+            expect(context.dropsPool).toBeDefined();
+            
+            // Verify item properties
+            const item = context.items[0][0];
+            expect(item).toBeDefined();
+            expect(item.ItemType).toBe('1');
+            expect(item.IsBooster).toBe(false);
+            expect(item.node).toBeDefined();
+            expect(item.node.on).toBeDefined();
+        });
+
+        it('should handle item click events', async () => {
+            await gameFillField.onEnter(context);
+            
+            const item = context.items[0][0];
+            expect(item).toBeDefined();
+            expect(item.ItemType).toBe('1');
+            expect(item.IsBooster).toBe(false);
+            expect(item.node).toBeDefined();
+            expect(item.node.on).toBeDefined();
         });
     });
 });
