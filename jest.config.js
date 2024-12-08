@@ -9,10 +9,12 @@ module.exports = {
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/assets/scripts/$1'
+    '^@/(.*)$': '<rootDir>/assets/scripts/$1',
+    '^cc$': '<rootDir>/assets/scripts/__mocks__/cc.ts'
   },
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov'],
-  verbose: true
+  verbose: true,
+  setupFiles: ['<rootDir>/jest.setup.js']
 };
