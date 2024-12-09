@@ -1,4 +1,55 @@
 /**
+ * Mock implementation of Cocos Creator (cc) module.
+ * Provides basic functionality needed for testing.
+ */
+
+import { GameFieldItem } from '../assets/Scripts/GameField/GameFieldItem';
+
+const createEmptyNode = () => ({
+    getComponent: () => null,
+    on: () => {},
+    off: () => {},
+    parent: null,
+    addChild: () => {},
+    removeFromParent: () => {},
+    position: { x: 0, y: 0 },
+    setPosition: () => {}
+});
+
+const createNodeWithComponent = () => {
+    const mockGameFieldItem = new GameFieldItem();
+    const node = createEmptyNode();
+    node.getComponent = () => mockGameFieldItem;
+    return node;
+};
+
+// Basic component implementation
+const createComponent = () => ({});
+
+// Conditional exports based on environment
+export const Component = typeof jest !== 'undefined'
+    ? jest.fn().mockImplementation(createComponent)
+    : createComponent;
+
+export const Node = typeof jest !== 'undefined'
+    ? jest.fn().mockImplementation(createEmptyNode)
+    : createEmptyNode;
+
+export const instantiate = typeof jest !== 'undefined'
+    ? jest.fn().mockImplementation(createNodeWithComponent)
+    : createNodeWithComponent;
+
+export const director = {
+    getScene: typeof jest !== 'undefined'
+        ? jest.fn().mockReturnValue({
+            getChildByName: jest.fn()
+        })
+        : () => ({
+            getChildByName: () => null
+        })
+};
+
+/**
  * Mock implementation of Cocos Creator decorators
  * - ccclass: Class decorator for marking a class as a Cocos component
  * - property: Property decorator for exposing properties in the editor
@@ -6,57 +57,6 @@
 export const _decorator = {
     ccclass: () => (target: any) => target,
     property: (options?: any) => (target: any, key: string) => target
-};
-
-/**
- * Base component class that all Cocos components inherit from
- * Provides basic component functionality like adding/getting components
- */
-export const Component = jest.fn().mockImplementation(() => ({
-    node: new Node()
-}));
-
-/**
- * Mock implementation of Cocos Creator Node class
- * Represents a node in the scene graph and handles:
- * - Component management
- * - Event system
- * - Scene graph operations (parent-child relationships)
- */
-export const Node = jest.fn().mockImplementation(() => ({
-    getComponent: jest.fn(),
-    on: jest.fn(),
-    off: jest.fn(),
-    parent: null,
-    addChild: jest.fn(),
-    removeFromParent: jest.fn(),
-    _eventListeners: {},
-    setPosition: jest.fn(),
-    position: { x: 0, y: 0, z: 0 }
-}));
-
-/**
- * Mock implementation of instantiate function
- * Creates a new node instance from a prefab
- * @param prefab - Prefab to create instance from
- * @returns New node instance
- */
-export const instantiate = jest.fn().mockImplementation((prefab) => {
-    const node = new Node();
-    const mockGameFieldItem = new GameFieldItem();
-    mockGameFieldItem.node = node;
-    node.getComponent = jest.fn().mockReturnValue(mockGameFieldItem);
-    return node;
-});
-
-/**
- * Mock implementation of director
- * Provides access to the current scene and its children
- */
-export const director = {
-    getScene: jest.fn().mockReturnValue({
-        getChildByName: jest.fn()
-    })
 };
 
 /**

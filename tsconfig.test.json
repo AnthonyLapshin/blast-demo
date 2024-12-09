@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "cc": ["__mocks__/cc.ts"],
+      "@/*": ["assets/Scripts/*"]
+    }
+  },
+  "include": [
+    "__tests__/**/*.ts",
+    "__mocks__/**/*.ts",
+    "assets/Scripts/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
