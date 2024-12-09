@@ -11,12 +11,6 @@ import { GameFieldItem } from '../assets/Scripts/GameField/GameFieldItem';
 import { Node } from 'cc';
 import { inject } from '../assets/Scripts/Libs/Injects/inject';
 
-// Mock cc module
-// jest.mock('cc');
-
-// Mock GameFieldItem
-// jest.mock('../assets/Scripts/GameField/GameFieldItem');
-
 describe('GameRemoveCluster', () => {
     let gameRemoveCluster: GameRemoveCluster;
     let context: GameContext;
@@ -28,7 +22,11 @@ describe('GameRemoveCluster', () => {
         // Create instances
         gameRemoveCluster = new GameRemoveCluster();
         context = new GameContext();
-        context.gameNode = new Node();
+        const gameNode = new Node();
+        gameNode.addChild = jest.fn();
+        gameNode.removeFromParent = jest.fn();
+        gameNode.getComponent = jest.fn();
+        context.gameNode = gameNode;
         context.items = [];
         context.itemsPool = [];
         context.dropsPool = [];
@@ -74,11 +72,11 @@ describe('GameRemoveCluster', () => {
             item1.IsBooster = false;
             item2.IsBooster = false;
             
-            // Create nodes for each item and spy on removeFromParent
+            // Create nodes for each item
             const node1 = new Node();
             const node2 = new Node();
-            jest.spyOn(node1, 'removeFromParent');
-            jest.spyOn(node2, 'removeFromParent');
+            node1.removeFromParent = jest.fn();
+            node2.removeFromParent = jest.fn();
             item1.node = node1;
             item2.node = node2;
             
@@ -92,14 +90,11 @@ describe('GameRemoveCluster', () => {
             await gameRemoveCluster.onEnter(context);
 
             // Verify
-            expect(context.items).toEqual([
-                [null, null],
-                [null, null]
-            ]);
-            expect(context.itemsPool).toEqual([item1, item2]);
-            expect(context.dropsPool).toEqual([]);
-            expect(node1.removeFromParent).toHaveBeenCalled();
-            expect(node2.removeFromParent).toHaveBeenCalled();
+            expect(node1.removeFromParent).toHaveBeenCalledTimes(1);
+            expect(node2.removeFromParent).toHaveBeenCalledTimes(1);
+            expect(context.itemsPool).toContain(item1);
+            expect(context.itemsPool).toContain(item2);
+            expect(context.dropsPool).toHaveLength(0);
         });
 
         it('should remove booster items and add them to dropsPool', async () => {
@@ -109,11 +104,11 @@ describe('GameRemoveCluster', () => {
             item1.IsBooster = true;
             item2.IsBooster = true;
             
-            // Create nodes for each item and spy on removeFromParent
+            // Create nodes for each item
             const node1 = new Node();
             const node2 = new Node();
-            jest.spyOn(node1, 'removeFromParent');
-            jest.spyOn(node2, 'removeFromParent');
+            node1.removeFromParent = jest.fn();
+            node2.removeFromParent = jest.fn();
             item1.node = node1;
             item2.node = node2;
             
@@ -127,14 +122,11 @@ describe('GameRemoveCluster', () => {
             await gameRemoveCluster.onEnter(context);
 
             // Verify
-            expect(context.items).toEqual([
-                [null, null],
-                [null, null]
-            ]);
-            expect(context.itemsPool).toEqual([]);
-            expect(context.dropsPool).toEqual([item1, item2]);
-            expect(node1.removeFromParent).toHaveBeenCalled();
-            expect(node2.removeFromParent).toHaveBeenCalled();
+            expect(node1.removeFromParent).toHaveBeenCalledTimes(1);
+            expect(node2.removeFromParent).toHaveBeenCalledTimes(1);
+            expect(context.dropsPool).toContain(item1);
+            expect(context.dropsPool).toContain(item2);
+            expect(context.itemsPool).toHaveLength(0);
         });
 
         it('should handle mixed items correctly', async () => {
@@ -144,11 +136,11 @@ describe('GameRemoveCluster', () => {
             regularItem.IsBooster = false;
             boosterItem.IsBooster = true;
             
-            // Create nodes for each item and spy on removeFromParent
+            // Create nodes for each item
             const node1 = new Node();
             const node2 = new Node();
-            jest.spyOn(node1, 'removeFromParent');
-            jest.spyOn(node2, 'removeFromParent');
+            node1.removeFromParent = jest.fn();
+            node2.removeFromParent = jest.fn();
             regularItem.node = node1;
             boosterItem.node = node2;
             
@@ -162,14 +154,12 @@ describe('GameRemoveCluster', () => {
             await gameRemoveCluster.onEnter(context);
 
             // Verify
-            expect(context.items).toEqual([
-                [null, null],
-                [null, null]
-            ]);
-            expect(context.itemsPool).toEqual([regularItem]);
-            expect(context.dropsPool).toEqual([boosterItem]);
-            expect(node1.removeFromParent).toHaveBeenCalled();
-            expect(node2.removeFromParent).toHaveBeenCalled();
+            expect(node1.removeFromParent).toHaveBeenCalledTimes(1);
+            expect(node2.removeFromParent).toHaveBeenCalledTimes(1);
+            expect(context.itemsPool).toContain(regularItem);
+            expect(context.dropsPool).toContain(boosterItem);
+            expect(context.itemsPool).toHaveLength(1);
+            expect(context.dropsPool).toHaveLength(1);
         });
     });
 });

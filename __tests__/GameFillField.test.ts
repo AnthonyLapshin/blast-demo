@@ -79,7 +79,11 @@ describe('GameFillField', () => {
         context = new GameContext();
         
         // Set up context with required properties
-        context.gameNode = new Node();
+        const gameNode = new Node();
+        gameNode.addChild = jest.fn();
+        gameNode.removeFromParent = jest.fn();
+        gameNode.getComponent = jest.fn();
+        context.gameNode = gameNode;
         context.itemPrefabs = [mockPrefab];
         context.dropPrefabs = [mockPrefab]; 
         context.itemsPool = [];

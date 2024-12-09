@@ -3,74 +3,130 @@
  * Provides basic functionality needed for testing.
  */
 
-import { GameFieldItem } from '../assets/Scripts/GameField/GameFieldItem';
+// Mock Node class with event types
+export class Node {
+    static EventType = {
+        TOUCH_END: 'touch-end'
+    };
 
-const createEmptyNode = () => ({
-    getComponent: () => null,
-    on: () => {},
-    off: () => {},
-    parent: null,
-    addChild: () => {},
-    removeFromParent: () => {},
-    position: { x: 0, y: 0 },
-    setPosition: () => {}
-});
+    private _eventHandlers: Map<string, Array<{ callback: Function, target: any }>> = new Map();
+    private _position = { x: 0, y: 0 };
+    private _children: Node[] = [];
+    parent: Node | null = null;
+    
+    constructor() {
+        // Initialize mock methods in constructor to ensure they're spyable
+        this.addChild = jest.fn((child: Node) => {
+            this._children.push(child);
+            child.parent = this;
+        });
+        this.removeFromParent = jest.fn(() => {
+            if (this.parent) {
+                const index = this.parent._children.indexOf(this);
+                if (index !== -1) {
+                    this.parent._children.splice(index, 1);
+                }
+                this.parent = null;
+            }
+        });
+        this.getComponent = jest.fn().mockReturnValue(null);
+    }
+    
+    on(eventName: string, callback: Function, target?: any): void {
+        if (!this._eventHandlers.has(eventName)) {
+            this._eventHandlers.set(eventName, []);
+        }
+        this._eventHandlers.get(eventName)?.push({ callback, target });
+    }
 
-const createNodeWithComponent = () => {
-    const mockGameFieldItem = new GameFieldItem();
-    const node = createEmptyNode();
-    node.getComponent = () => mockGameFieldItem;
-    return node;
-};
+    off(eventName: string, callback: Function, target?: any): void {
+        const handlers = this._eventHandlers.get(eventName);
+        if (handlers) {
+            const index = handlers.findIndex(h => h.callback === callback && h.target === target);
+            if (index !== -1) {
+                handlers.splice(index, 1);
+            }
+        }
+    }
+
+    emit(eventName: string, ...args: any[]): void {
+        const handlers = this._eventHandlers.get(eventName);
+        if (handlers) {
+            handlers.forEach(({ callback, target }) => {
+                callback.apply(target, args);
+            });
+        }
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    setPosition(x: number, y: number, z: number = 0): void {
+        this._position.x = x;
+        this._position.y = y;
+    }
+
+    // These will be properly initialized in the constructor
+    addChild!: jest.Mock;
+    removeFromParent!: jest.Mock;
+    getComponent!: jest.Mock;
+}
+
+// Mock Vec2 and Vec3 classes
+export class Vec2 {
+    constructor(public x: number = 0, public y: number = 0) {}
+}
+
+export class Vec3 {
+    constructor(public x: number = 0, public y: number = 0, public z: number = 0) {}
+}
 
 // Basic component implementation
-const createComponent = () => ({});
+export class Component {
+    protected _node: Node;
 
-// Conditional exports based on environment
-export const Component = typeof jest !== 'undefined'
-    ? jest.fn().mockImplementation(createComponent)
-    : createComponent;
+    constructor() {
+        this._node = new Node();
+    }
 
-export const Node = typeof jest !== 'undefined'
-    ? jest.fn().mockImplementation(createEmptyNode)
-    : createEmptyNode;
+    get node(): Node {
+        return this._node;
+    }
 
-export const instantiate = typeof jest !== 'undefined'
-    ? jest.fn().mockImplementation(createNodeWithComponent)
-    : createNodeWithComponent;
+    set node(value: Node) {
+        this._node = value;
+    }
+}
 
+// Mock instantiate function
+export const instantiate = jest.fn((prefab) => {
+    const node = new Node();
+    if (prefab && prefab.data) {
+        node.getComponent = jest.fn().mockReturnValue(prefab.data.getComponent());
+    }
+    return node;
+});
+
+// Mock director
 export const director = {
-    getScene: typeof jest !== 'undefined'
-        ? jest.fn().mockReturnValue({
-            getChildByName: jest.fn()
-        })
-        : () => ({
-            getChildByName: () => null
-        })
+    getScene: jest.fn().mockReturnValue({
+        getChildByName: jest.fn()
+    })
 };
 
-/**
- * Mock implementation of Cocos Creator decorators
- * - ccclass: Class decorator for marking a class as a Cocos component
- * - property: Property decorator for exposing properties in the editor
- */
+// Mock decorators
 export const _decorator = {
-    ccclass: () => (target: any) => target,
-    property: (options?: any) => (target: any, key: string) => target
+    ccclass: (name?: string) => (constructor: any) => constructor,
+    property: (options?: any) => (target: any, key: string) => {}
 };
 
 /**
  * Mock implementation of UITransform component
- * Handles the size and transformation properties of UI elements
  */
 export class UITransform extends Component {
     contentSize = { width: 100, height: 100 };
-
-    /**
-     * Sets the content size of the UI element
-     * @param width - Width in pixels
-     * @param height - Height in pixels
-     */
+    
     setContentSize(width: number, height: number) {
         this.contentSize.width = width;
         this.contentSize.height = height;
@@ -79,60 +135,33 @@ export class UITransform extends Component {
 
 /**
  * Mock implementation of Prefab class
- * Used for instantiating pre-configured nodes
  */
 export class Prefab {
     data: any;
 }
 
 /**
- * Mock implementation of GameFieldItem component
- * Represents an item in the game field with position and type
+ * Mock implementation of tween function
  */
-export class GameFieldItem extends Component {
-    static readonly COMPONENT_NAME: string = 'GameFieldItem';
-    static readonly CLICKED_EVENT: string = 'item-clicked';
+export const tween = (target: any) => ({
+    to: jest.fn().mockReturnThis(),
+    delay: jest.fn().mockReturnThis(),
+    call: jest.fn().mockReturnThis(),
+    start: jest.fn()
+});
 
-    ItemType: number;
-    IsBooster: boolean;
-    fieldX: number;
-    fieldY: number;
-
-    constructor() {
-        super();
-        this.ItemType = 1;
-        this.IsBooster = false;
-        this.fieldX = 0;
-        this.fieldY = 0;
-        this.node = new Node();
+/**
+ * Mock implementation of EventTouch class
+ */
+export class EventTouch {
+    constructor(public target: Node) {}
+    getUILocation() {
+        return new Vec2();
     }
 }
 
 /**
- * Mock implementation of tween function
- * Creates a chainable animation sequence
- * @param target - Target object to animate
- * @returns Tween object with chainable animation methods
- */
-export function tween(target: any) {
-    return {
-        to: (duration: number, props: any) => ({
-            start: () => {}
-        })
-    };
-}
-
-/**
- * Mock implementation of EventTouch class
- * Represents a touch event with the target node
- */
-export class EventTouch {
-    constructor(public target: Node) {}
-}
-
-/**
  * Mock implementations of CCString and CCBoolean
- * Used for property decorators in Cocos Creator
  */
 export class CCString {}
 export class CCBoolean {}
